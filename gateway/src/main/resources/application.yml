@@ -1,0 +1,15 @@
+server:
+  port: 8080
+spring:
+  cloud:
+    nacos:
+      server-addr: 117.72.124.24:8848
+      config:
+        namespace: chenzhihao
+        group: DEFAULT_GROUP
+  config:
+    import:
+     - nacos:auto_login.yml
+  application:
+    name: gateway-service
+    
