@@ -9,7 +9,7 @@ spring:
         group: DEFAULT_GROUP
   config:
     import:
-     - nacos:auto_login.yml
+    
   application:
     name: gateway-service
     
