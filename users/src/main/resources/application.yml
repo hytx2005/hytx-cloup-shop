@@ -4,14 +4,15 @@ server:
 spring:
   application:
     name: users-service
+
+  # nacos服务注册与配置中心
   config:
     import: nacos:${spring.application.name}
   cloud:
     nacos:
-      discovery:
-        server-addr: ${nacos.address}
-        namespace: public
-
+      server-addr: ${nacos.address}
+      config:
+         file-extension: yaml
   profiles:
     active: dev # 激活开发环境配置
 
@@ -22,16 +23,9 @@ spring:
     username: ${cs.db.user}
     password: ${cs.db.pwd}
 
-mybatis-plus:
-  mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.cehnzhihao.users.domain.po
-  configuration:
-    map-underscore-to-camel-case: true
-  global-config:
-    db-config:
-      id-type: auto
 
-  # dubbo + nacos 服务注册发现
+
+# dubbo + nacos 服务注册发现
 nacos:
     address: 121.43.197.241:8848
     #  117.72.124.24:8849
@@ -46,6 +40,17 @@ dubbo:
   application:
     qos-enable: off
     name: ${spring.application.name}
+
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.cehnzhihao.users.domain.po
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
 
 logging:
   level:

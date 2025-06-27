@@ -11,6 +11,14 @@ spring:
       server-addr: ${nacos.address}
       config:
           file-extension: yaml
+  # 数据库连接池配置
+  datasource:
+    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${cs.db.user}
+    password: ${cs.db.pwd}
+  profiles:
+    active: dev
 # dubbo + nacos 服务注册发现
 nacos:
     address: 121.43.197.241:8848
@@ -26,18 +34,8 @@ dubbo:
   application:
     qos-enable: off
     name: ${spring.application.name}
-  # 数据库连接池配置
-  datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
 
-# 激活默认profile（可选）
-spring.profiles.active: dev
 
-profiles:
-  active: dev # 激活开发环境配置
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
