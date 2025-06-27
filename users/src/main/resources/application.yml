@@ -4,10 +4,12 @@ server:
 spring:
   application:
     name: users-service
+  config:
+    import: nacos:${spring.application.name}
   cloud:
     nacos:
       discovery:
-        server-addr: localhost:8848
+        server-addr: ${nacos.address}
         namespace: public
 
   profiles:
@@ -29,14 +31,21 @@ mybatis-plus:
     db-config:
       id-type: auto
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
+  # dubbo + nacos 服务注册发现
+nacos:
+    address: 121.43.197.241:8848
+    #  117.72.124.24:8849
+dubbo:
+  protocol:
+    port: -1
+  consumer:
+    check: false
+  registry:
+    address: nacos://${nacos.address}?username=nacos&password=nacos
+    register-mode: instance
+  application:
+    qos-enable: off
+    name: ${spring.application.name}
 
 logging:
   level:

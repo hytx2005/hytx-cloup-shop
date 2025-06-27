@@ -1,15 +1,28 @@
 server:
   port: 8080
 spring:
-  cloud:
-    nacos:
-      server-addr: 117.72.124.24:8848
-      config:
-        namespace: chenzhihao
-        group: DEFAULT_GROUP
-  config:
-    import:
-    
   application:
     name: gateway-service
-    
+#nacos服务注册与配置中心
+  config:
+    import: nacos:${spring.application.name}
+  cloud:
+    nacos:
+      server-addr: ${nacos.address}
+      config:
+        file-extension: yaml
+# dubbo + nacos 服务注册发现
+nacos:
+  address: 121.43.197.241:8848
+  #  117.72.124.24:8849
+dubbo:
+  protocol:
+    port: -1
+  consumer:
+    check: false
+  registry:
+    address: nacos://${nacos.address}?username=nacos&password=nacos
+    register-mode: instance
+  application:
+    qos-enable: off
+    name: ${spring.application.name}
