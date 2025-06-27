@@ -1,12 +1,15 @@
 package com.chenzhihao.orders;
 
 import org.mybatis.spring.annotation.MapperScan;
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @MapperScan("com.chenzhihao.orders.mapper")
 @SpringBootApplication
-//@EnableDiscoveryClient
+@EnableDubbo
+@EnableDiscoveryClient
 public class OrdersApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrdersApplication.class, args);

@@ -4,23 +4,38 @@ server:
 spring:
   application:
     name: orders-service
+  config:
+    import: nacos:${spring.application.name}
   cloud:
     nacos:
-      discovery:
-        server-addr: localhost:8848
-        namespace: public
+      server-addr: ${nacos.address}
+      config:
+          file-extension: yaml
   # 数据库连接池配置
   datasource:
     url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${cs.db.user}
     password: ${cs.db.pwd}
+  profiles:
+    active: dev
+# dubbo + nacos 服务注册发现
+nacos:
+    address: 121.43.197.241:8848
+      #  117.72.124.24:8849
+dubbo:
+  protocol:
+    port: -1
+  consumer:
+    check: false
+  registry:
+    address: nacos://${nacos.address}?username=nacos&password=nacos
+    register-mode: instance
+  application:
+    qos-enable: off
+    name: ${spring.application.name}
 
-# 激活默认profile（可选）
-spring.profiles.active: dev
 
-profiles:
-  active: dev # 激活开发环境配置
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -31,15 +46,6 @@ mybatis-plus:
     db-config:
       id-type: auto
 
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
 
 logging:
   level:
