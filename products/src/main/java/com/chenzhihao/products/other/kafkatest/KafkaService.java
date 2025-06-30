@@ -1,4 +1,4 @@
-package com.chenzhihao.products.kafkatest;
+package com.chenzhihao.products.other.kafkatest;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;

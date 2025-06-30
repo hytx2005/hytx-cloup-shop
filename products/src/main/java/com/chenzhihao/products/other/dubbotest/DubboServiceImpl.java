@@ -1,4 +1,4 @@
-package com.chenzhihao.products.dubbotest;
+package com.chenzhihao.products.other.dubbotest;
 
 import org.apache.dubbo.config.annotation.DubboService;
 

@@ -41,6 +41,7 @@
         <module>orders</module>
         <module>products</module>
         <module>users</module>
+        <module>shop-common</module>
     </modules>
 
     <dependencyManagement>
@@ -132,6 +133,13 @@
                 <groupId>org.springframework.kafka</groupId>
                 <artifactId>spring-kafka</artifactId>
                 <version>2.8.0</version>
+            </dependency>
+
+            <!--redisson-->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>3.19.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

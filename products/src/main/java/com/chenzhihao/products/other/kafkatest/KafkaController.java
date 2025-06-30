@@ -1,4 +1,4 @@
-package com.chenzhihao.products.kafkatest;
+package com.chenzhihao.products.other.kafkatest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

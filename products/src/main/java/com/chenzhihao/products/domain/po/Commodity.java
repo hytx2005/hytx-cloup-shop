@@ -36,6 +36,12 @@ public class Commodity implements Serializable {
      */
     private String name;
 
+
+    /**
+     * 上架该商品的用户id
+     */
+    private Long userId;
+
     /**
      * 商品价格
      */

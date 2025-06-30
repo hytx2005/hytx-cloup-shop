@@ -43,7 +43,9 @@ spring:
     listener:
       ack-mode: manual_immediate
 
-
+  redis:
+    host: 117.72.124.24
+    port: 6379
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
