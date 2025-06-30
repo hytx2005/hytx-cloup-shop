@@ -28,4 +28,5 @@ public interface IUserService extends IService<User> {
      * @param userRegisterDto 注册信息
      */
     void registerUser(UserRegisterDto userRegisterDto);
+
 }
