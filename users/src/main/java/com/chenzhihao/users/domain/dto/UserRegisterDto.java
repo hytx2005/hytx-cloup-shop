@@ -1,14 +1,14 @@
-package com.chenzhihao.users.domain.po;
+package com.chenzhihao.users.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -23,12 +23,9 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("user")
-public class User implements Serializable {
+public class UserRegisterDto implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+//    private static final long serialVersionUID = 1L;
 
     /**
      * 用户名
@@ -44,11 +41,6 @@ public class User implements Serializable {
      * 联系电话
      */
     private String phone;
-
-    /**
-     * 账号状态（0正常 1停用）
-     */
-    private String userStatus;
 
 
 }

@@ -5,12 +5,21 @@ import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.JwtUtils;
 import com.chenzhihao.users.domain.dto.UserLoginDto;
+import com.chenzhihao.users.domain.dto.UserRegisterDto;
 import com.chenzhihao.users.domain.po.User;
 import com.chenzhihao.users.domain.vo.UserLoginVo;
 import com.chenzhihao.users.properties.JwtProperties;
 import com.chenzhihao.users.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.chenzhihao.users.domain.po.User;
+import com.chenzhihao.users.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -21,13 +30,20 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-06-27
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private IUserService userService;
     @Autowired
     private JwtProperties jwtProperties;
+
+
+    @PostMapping("/register")
+    public Result<?> register(@RequestBody UserRegisterDto userRegisterDto) {
+        userService.registerUser(userRegisterDto);
+        return Result.success("注册成功");
+    }
 
     @GetMapping("/login")
     public Result<UserLoginVo> login(@RequestBody UserLoginDto userLoginDto){
