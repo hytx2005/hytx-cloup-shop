@@ -58,7 +58,7 @@ public class UserController {
      */
     @GetMapping("/testToken")
     public Result<Object> test(@RequestParam("token") String string){
-        JwtUtils.parseToken(jwtProperties.getSecretKey(),string,jwtProperties.getHeaderName());
-        return Result.success("test");
+        Long l = JwtUtils.parseToken(jwtProperties.getSecretKey(), string);
+        return Result.success(l);
     }
 }
