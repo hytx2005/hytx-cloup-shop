@@ -1,20 +1,20 @@
-package com.chenzhihao.shopcommon.util;
-
-
+package com.chenzhihao.gateway.util;
 
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.jwt.*;
 import cn.hutool.jwt.signers.JWTSigner;
 import cn.hutool.jwt.signers.JWTSignerUtil;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
+
 /**
  * jwt工具类
  * @author dhx
  */
-public class JwtUtils {
-
+public class JwtUtil {
     /**
      * 生成token令牌
      * @param secretKey 密钥
@@ -36,7 +36,7 @@ public class JwtUtils {
      * @param token token令牌
      * @return {@link Long }
      */
-    public static Long parseToken(String secretKey,String token) {
+    public static Long parseToken(String secretKey,String token,String tokenName) {
 
         JWTSigner jwtSigner = JWTSignerUtil.hs256(secretKey.getBytes(StandardCharsets.UTF_8));
 
@@ -61,7 +61,7 @@ public class JwtUtils {
             throw new JWTException("token已经过期");
         }
         // 4.数据格式校验
-        Object userPayload = jwt.getPayload("userId");
+        Object userPayload = jwt.getPayload(tokenName);
         if (userPayload == null) {
             // 数据为空
             System.out.println("无效的token");
@@ -78,3 +78,4 @@ public class JwtUtils {
         }
     }
 }
+

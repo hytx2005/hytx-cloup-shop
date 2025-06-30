@@ -10,6 +10,7 @@ import com.chenzhihao.users.domain.po.User;
 import com.chenzhihao.users.domain.vo.UserLoginVo;
 import com.chenzhihao.users.properties.JwtProperties;
 import com.chenzhihao.users.service.IUserService;
+import org.apache.dubbo.common.logger.FluentLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.chenzhihao.users.domain.po.User;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * <p>
@@ -60,5 +64,14 @@ public class UserController {
     public Result<Object> test(@RequestParam("token") String string){
         Long l = JwtUtils.parseToken(jwtProperties.getSecretKey(), string);
         return Result.success(l);
+    }
+
+    @GetMapping("/test")
+    public Result<Integer> test1(HttpServletRequest request){
+        String header = request.getHeader(jwtProperties.getHeaderName());
+        int userId = Integer.parseInt(header);
+        userId += 100;
+        System.out.println("测试");
+        return Result.success(userId);
     }
 }

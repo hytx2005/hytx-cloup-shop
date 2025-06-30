@@ -59,5 +59,15 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
     </dependencies>
 </project>

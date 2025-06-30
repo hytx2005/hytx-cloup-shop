@@ -11,6 +11,15 @@ spring:
       server-addr: ${nacos.address}
       config:
         file-extension: yaml
+# gateway相关配置
+    gateway:
+      routes:  # 路由配置
+        - id: users-service # 路由规则id,可自定义，但必须唯一
+          uri:
+            lb://users-service # 路由的目标服务，lb代表负载均衡，会从注册中心获取服务实例列表，然后进行负载均衡
+          predicates:
+            - Path=/users/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
+
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
@@ -26,3 +35,19 @@ dubbo:
   application:
     qos-enable: off
     name: ${spring.application.name}
+
+#jwt相关配置
+jwt:
+  # 设置jwt签名加密时使用的秘钥
+  secret-key: cloud_shopdh21hadxy812yhdahd1r31
+  # 设置jwt过期时间
+  user-ttl: 604800000
+  # 设置前端传递过来的令牌名称
+  token-name: token
+  # 设置后端jwt校验的token名称
+  claim-name: userId
+# 不用登录校验的路径
+auth:
+  excludePaths:
+    - /users/login
+    - /users/register
