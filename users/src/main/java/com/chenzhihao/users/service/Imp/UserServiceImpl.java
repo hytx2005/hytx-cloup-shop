@@ -56,9 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         // 生成 token令牌
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(jwtProperties.getHeaderName(), login.getId());
-        String token = JwtUtils.createToken(jwtProperties.getSecretKey(), jwtProperties.getUserTtl(), claims);
+        String token = JwtUtils.createToken(jwtProperties.getSecretKey(), jwtProperties.getUserTtl(),login.getId());
 
         // 设置返回结果
         UserLoginVo userLoginVo = new UserLoginVo();
