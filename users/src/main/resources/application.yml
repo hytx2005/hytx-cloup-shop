@@ -79,3 +79,14 @@ logging:
     com.example.users: DEBUG
     org.apache.dubbo: INFO
     com.alibaba.nacos: WARN
+
+#jwt相关配置
+jwt:
+    # 设置jwt签名加密时使用的秘钥
+    secret-key: cloud_shopdh21hadxy812yhdahd1r31
+    # 设置jwt过期时间
+    user-ttl: 604800000
+    # 设置前端传递过来的令牌名称
+    token-name: token
+    # 设置后端jwt校验的token名称
+    header-name: userId

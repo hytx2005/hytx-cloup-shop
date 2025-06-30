@@ -1,7 +1,9 @@
 package com.chenzhihao.users.service;
 
+import com.chenzhihao.users.domain.dto.UserLoginDto;
 import com.chenzhihao.users.domain.po.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chenzhihao.users.domain.vo.UserLoginVo;
 
 /**
  * <p>
@@ -13,4 +15,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserService extends IService<User> {
 
+    /**
+     * 用户登录
+     * @param loginDto 登录信息
+     * @return {@link User }
+     */
+    UserLoginVo loginUser(UserLoginDto loginDto);
 }
