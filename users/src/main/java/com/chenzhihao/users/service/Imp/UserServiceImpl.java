@@ -49,7 +49,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
             throw new ParamEmptyException("用户名或密码为空");
         }
-        User login = userMapper.login(username, password);
+        password = PasswordUtil.hashPassword(password);
+        String password1 = userMapper.getPassword(username);
+        if (PasswordUtil.checkPassword(password, password1)) {
+            throw new ParamEmptyException("用户名或密码错误");
+        }
+        User login = userMapper.login(username);
 
         if (login == null) {
             throw new ParamEmptyException("用户名或密码错误");
