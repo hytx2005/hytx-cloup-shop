@@ -93,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String encodedPassword = PasswordUtil.hashPassword(password);
 
         User user = User.builder()
-                .username(userName)
+                .userName(userName)
                 .password(encodedPassword)
                 .phone(phone)
                 .userStatus("1")
