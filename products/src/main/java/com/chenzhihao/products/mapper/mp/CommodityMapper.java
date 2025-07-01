@@ -1,4 +1,4 @@
-package com.chenzhihao.products.mapper;
+package com.chenzhihao.products.mapper.mp;
 
 import com.chenzhihao.products.domain.po.Commodity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

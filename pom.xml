@@ -19,6 +19,8 @@
     <name>cloud-mall</name>
     <description>Cloud Mall Project</description>
     <properties>
+        <elasticsearch.java.version>7.17.28</elasticsearch.java.version>
+        <easy-es.version>3.0.0</easy-es.version>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -111,6 +113,38 @@
                 <version>3.19.3</version>
             </dependency>
 
+            <!-- 统一 Elasticsearch 相关依赖版本 -->
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch.java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch-geo</artifactId>
+                <version>${elasticsearch.java.version}</version>
+            </dependency>
+            <!-- 引入easy-es的依赖-->
+            <dependency>
+                <groupId>org.dromara.easy-es</groupId>
+                <artifactId>easy-es-boot-starter</artifactId>
+                <version>3.0.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+
+
 </project>
