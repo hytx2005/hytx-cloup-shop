@@ -1,7 +1,10 @@
 package com.chenzhihao.products.service;
 
+import com.chenzhihao.products.domain.doc.CommodityEsDoc;
+import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chenzhihao.products.domain.vo.PageResult;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ICommodityService extends IService<Commodity> {
 
+    PageResult<CommodityEsDoc> search(CommodityQueryDTO dto);
 }
