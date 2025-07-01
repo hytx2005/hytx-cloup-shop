@@ -16,5 +16,11 @@ import com.chenzhihao.products.domain.vo.PageResult;
  */
 public interface ICommodityService extends IService<Commodity> {
 
+     /**
+      * 旁路缓存策略 - 用商品id获取商品id
+      * @param id 商品id
+      * @return {@link Commodity }
+      */
+     Commodity getCommodityFromCache(Long id);
     PageResult<CommodityEsDoc> search(CommodityQueryDTO dto);
 }

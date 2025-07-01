@@ -46,6 +46,7 @@ spring:
   redis:
     host: 117.72.124.24
     port: 6379
+    database: 0
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
@@ -60,7 +61,7 @@ dubbo:
     register-mode: instance
   application:
     qos-enable: off
-    name: ${spring.application.name}
+    name: ${spring.application.name}-dubbo
 
 
 
@@ -83,5 +84,7 @@ logging:
   level:
     root: INFO
     com.example.products: DEBUG
-    org.apache.dubbo: INFO
+    org.apache.dubbo: WARN
     com.alibaba.nacos: WARN
+    org.apache.kafka: WARN
+    org.apache.kafka.clients: WARN

@@ -5,6 +5,7 @@ import com.chenzhihao.gateway.config.AuthProperties;
 import com.chenzhihao.gateway.config.JwtProperties;
 import com.chenzhihao.gateway.util.JwtUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -26,6 +27,7 @@ import java.util.Objects;
  */
 @Component
 @Data
+@Slf4j
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
     @Autowired
     private JwtProperties jwtProperties;
@@ -39,9 +41,11 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // 1.获取request
         ServerHttpRequest request = exchange.getRequest();
 
+        log.info("request:{}{}", request.getMethod(), request.getURI());
+
         // 2.判断是否需要登录拦截
         if (isExclude(request.getPath().toString())){
-            System.out.println("不需登录拦截");
+            log.info("不需要登录拦截");
             return chain.filter(exchange);
         }
 
@@ -51,14 +55,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (headers != null && !headers.isEmpty()){
             token = headers.get(0);
         }
-        System.out.println("已经获取到token"+token);
+        log.info("已经获取到token:{}", token);
         Long userId = null;
         try {
             userId  = JwtUtil.parseToken(jwtProperties.getSecretKey(), token, jwtProperties.getClaimName());
-            System.out.println("userIdO"+userId);
+            log.info("userId:{}",userId);
         }catch (JWTException e){
             ServerHttpResponse response = exchange.getResponse();
-            System.out.println("token解析失败");
+            log.error("token解析失败");
             return response.setComplete();
         }
 
@@ -68,7 +72,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 .build();
 
         // 放行
-        System.out.println("已经放行");
+        log.info("已经放行");
         return chain.filter(webExchange);
     }
 

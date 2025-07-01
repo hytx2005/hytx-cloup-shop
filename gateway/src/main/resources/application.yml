@@ -20,21 +20,15 @@ spring:
           predicates:
             - Path=/users/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
 
+        - id: products-service # 路由规则id,可自定义，但必须唯一
+          uri:
+            lb://products-service # 路由的目标服务，lb代表负载均衡，会从注册中心获取服务实例列表，然后进行负载均衡
+          predicates:
+            - Path=/commodity/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
   #  117.72.124.24:8849
-dubbo:
-  protocol:
-    port: -1
-  consumer:
-    check: false
-  registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos
-    register-mode: instance
-  application:
-    qos-enable: off
-    name: ${spring.application.name}
 
 #jwt相关配置
 jwt:
@@ -51,3 +45,4 @@ auth:
   excludePaths:
     - /users/login
     - /users/register
+    - /commodity/**

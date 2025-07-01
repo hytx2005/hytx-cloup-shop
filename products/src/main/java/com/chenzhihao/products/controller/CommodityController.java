@@ -1,6 +1,12 @@
 package com.chenzhihao.products.controller;
 
 
+import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.service.ICommodityService;
+import com.chenzhihao.shopcommon.result.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
@@ -10,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 import javax.annotation.Resource;
 
@@ -26,10 +34,15 @@ import javax.annotation.Resource;
 @RequestMapping("/commodity")
 public class CommodityController {
 
-    @Resource
-    private CommodityEsMapper commodityEsMapper;
-    @Resource
+    @Autowired
     private ICommodityService commodityService;
+
+    @GetMapping("/get/{id}")
+    public Result<Commodity> getCommodityById(@PathVariable Long id) {
+        Commodity commodity = commodityService.getCommodityFromCache(id);
+        return Result.success(commodity);
+    }
+
 
     /**
      * 商品搜索接口

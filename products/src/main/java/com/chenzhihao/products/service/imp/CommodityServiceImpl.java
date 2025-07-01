@@ -1,17 +1,21 @@
 package com.chenzhihao.products.service.imp;
 
-import cn.hutool.core.util.StrUtil;
+
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.other.util.KafkaSendUtil;
+import com.chenzhihao.products.other.util.RedisUtil;
 import com.chenzhihao.products.domain.vo.PageResult;
 import com.chenzhihao.products.mapper.es.CommodityEsMapper;
 import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import com.chenzhihao.products.service.ICommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chenzhihao.shopcommon.exception.BaseException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.dromara.easyes.core.biz.EsPageInfo;
 import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,11 +30,52 @@ import javax.annotation.Resource;
  * @since 2025-06-27
  */
 @Service
+@Slf4j
 public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity> implements ICommodityService {
 
     @Autowired
+    private  RedisUtil redisUtil;
+    @Autowired
+    private CommodityMapper commodityMapper;
+    @Autowired
+    private KafkaSendUtil kafkaSendUtil;
+
+
+    /**
+     * 旁路缓存策略 - 用商品id获取商品信息
+     * 未获取到商品信息时，使用kafka消息队列来推送商品信息到redis中
+     * @param id 商品id
+     * @return {@link Commodity }
+     */
+    @Override
+    public Commodity getCommodityFromCache(Long id) {
+        // 先从redis缓存中查找商品信息
+        Commodity commodity = redisUtil.getCommodity(id);
+
+        // 缓存命中，直接返回
+        if (commodity != null) {
+            log.info("缓存命中，商品信息：{}", commodity);
+            return commodity;
+        }
+        // 缓存未命中，从数据库中查找商品信息
+        commodity = commodityMapper.selectById(id);
+
+        // 查找到商品信息，推送到消息队列
+        if (commodity!= null) {
+            kafkaSendUtil.addCommodityToRedis(commodity);
+        }
+        // 商品不存在
+        else {
+            throw new BaseException("商品信息不存在");
+        }
+
+        return commodity;
+    }
+
+    @Resource
     private CommodityEsMapper commodityEsMapper;
 
+        @Override
         public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
             // 1. 创建查询条件构造器
             LambdaEsQueryWrapper<CommodityEsDoc> wrapper = new LambdaEsQueryWrapper<>();

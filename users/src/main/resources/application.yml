@@ -60,7 +60,7 @@ dubbo:
     register-mode: instance
   application:
     qos-enable: off
-    name: ${spring.application.name}
+    name: ${spring.application.name}-dubbo
 
 
 mybatis-plus:
