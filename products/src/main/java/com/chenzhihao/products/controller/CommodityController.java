@@ -4,22 +4,18 @@ package com.chenzhihao.products.controller;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.result.Result;
+import com.chenzhihao.shopcommon.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
-import com.chenzhihao.products.mapper.es.CommodityEsMapper;
-import com.chenzhihao.products.service.ICommodityService;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 
-import javax.annotation.Resource;
 
 
 /**
@@ -54,5 +50,10 @@ public class CommodityController {
         return commodityService.search(queryDTO);
     }
 
+    @GetMapping("/testId")
+    public Result<Long> testId() {
+        Long id = UserContext.getUserId();
+        return Result.success(id);
+    }
 
 }
