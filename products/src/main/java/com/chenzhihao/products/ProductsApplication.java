@@ -14,7 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
  * 商品模块启动类
  * @author dhx
  */
-@MapperScan("com.chenzhihao.products.mapper")
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableDubbo
