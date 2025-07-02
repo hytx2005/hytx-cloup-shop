@@ -1,5 +1,6 @@
 package com.chenzhihao.orders.domain.po;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -26,6 +27,7 @@ import lombok.experimental.Accessors;
 @TableName("orders")
 public class Orders implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -51,5 +53,20 @@ public class Orders implements Serializable {
      */
     private String shipStatus;
 
+
+    /**
+     * 商品名称
+     */
+    private String commodityName;
+
+    /**
+     * 商品图片
+     */
+    private String commodityUrl;
+
+    /**
+     * 订单号
+     */
+    private String orderNo;
 
 }
