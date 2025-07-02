@@ -45,4 +45,5 @@ auth:
   excludePaths:
     - /users/login
     - /users/register
-    - /commodity/**
+    - /commodity/search
+    - /commodity/get/**
