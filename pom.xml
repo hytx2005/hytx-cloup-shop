@@ -44,6 +44,8 @@
         <module>products</module>
         <module>users</module>
         <module>shop-common</module>
+        <module>carts</module>
+        <module>shop-api</module>
     </modules>
 
     <dependencyManagement>
@@ -84,6 +86,17 @@
                 <version>${mysql.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.chenzhihao.shopcommon</groupId>
+                <artifactId>shop-common</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chenzhihao.shopapi</groupId>
+                <artifactId>shop-api</artifactId>
+                <version>1.0.0</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>

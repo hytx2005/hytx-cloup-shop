@@ -1,9 +1,9 @@
 server:
-  port: 8083
+  port: 8084
 
 spring:
   application:
-    name: products-service
+    name: carts-service
   config:
     import: nacos:${spring.application.name}
   cloud:
@@ -23,40 +23,20 @@ spring:
     active: dev
 
 
-# kafka相关配置
-  kafka:
-    bootstrap-servers: 117.72.116.151:9092
-    producer:
-      retries: 3 #设置大于0，会将发送失败的记录重新发送
-      batch-size: 16384
-      buffer-memory: 33554432
-      acks: 1
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-    consumer:
-      group-id: default-group
-      enable-auto-commit: false
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      max-poll-records: 500
-
-    listener:
-      ack-mode: manual_immediate
-
   redis:
     host: 117.72.124.24
     port: 6379
     database: 0
+
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
   #  117.72.124.24:8849
 dubbo:
   protocol:
-    port: 20882
+    port: 20881
   consumer:
+    timeout: 5000
     check: false
   registry:
     address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
@@ -69,17 +49,12 @@ dubbo:
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.cehnzhihao.users.domain.po
+  type-aliases-package: com.cehnzhihao.carts.domain.po
   configuration:
     map-underscore-to-camel-case: true
   global-config:
     db-config:
       id-type: auto
-
-easy-es:
-  compatible: true # 兼容模式开关,默认为false,若您的es客户端版本小于8.x,务必设置为true才可正常使用,8.x及以上则可忽略此项配置
-  enable: true #默认为true,若为false则认为不启用本框架
-  address : 117.72.116.151:9200 # es的连接地址,必须含端口 若为集群,则可以用逗号隔开 例如:127.0.0.1:9200,127.0.0.2:9200
 
 
 logging:

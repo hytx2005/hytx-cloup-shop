@@ -1,4 +1,4 @@
-package com.chenzhihao.users.service.imp;
+package com.chenzhihao.users.service.Imp;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +13,7 @@ import com.chenzhihao.users.mapper.UserMapper;
 import com.chenzhihao.users.properties.JwtProperties;
 import com.chenzhihao.users.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ import java.util.Map;
  * @author hqh
  * @since 2025-06-27
  */
+@DubboService
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
