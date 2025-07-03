@@ -2,7 +2,6 @@ package com.chenzhihao.products.domain.doc;
 
 import lombok.Data;
 import org.dromara.easyes.annotation.IndexField;
-import org.dromara.easyes.annotation.IndexId;
 import org.dromara.easyes.annotation.IndexName;
 import org.dromara.easyes.annotation.rely.Analyzer;
 import org.dromara.easyes.annotation.rely.FieldType;
@@ -15,15 +14,8 @@ public class CommodityEsDoc {
     /**
      * 文档的唯一ID, 对应ES的_id字段.
      */
-    @IndexId
+    @IndexField
     private String id;
-
-    /**
-     * 业务ID, 用于和数据库关联.
-     * 需要一个新字段来存储原来在_source中存的数字ID.
-     */
-    @IndexField(fieldType = FieldType.KEYWORD)
-    private Long commodityId;
     @IndexField(fieldType = FieldType.TEXT, analyzer = Analyzer.IK_MAX_WORD)
     private String name;
     @IndexField(fieldType = FieldType.KEYWORD)

@@ -5,7 +5,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 /**
  * @author ASUS
  */
-@DubboService
+//@DubboService
 public class DubboServiceImpl {
     public String testHello(String name) {
         return "hello " + name;

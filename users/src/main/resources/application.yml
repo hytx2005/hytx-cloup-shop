@@ -11,6 +11,8 @@ spring:
   cloud:
     nacos:
       server-addr: ${nacos.address}
+      discovery:
+        namespace: ${cloud.nacos.namespace}
       config:
          file-extension: yaml
   profiles:
@@ -56,7 +58,7 @@ dubbo:
   consumer:
     check: false
   registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos
+    address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.nacos.namespace}
     register-mode: instance
   application:
     qos-enable: off

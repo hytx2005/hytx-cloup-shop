@@ -74,6 +74,17 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.chenzhihao.shopcommon</groupId>
+            <artifactId>shop-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chenzhihao.shopapi</groupId>
+            <artifactId>shop-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
     </dependencies>
 

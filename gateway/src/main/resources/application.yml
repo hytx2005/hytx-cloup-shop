@@ -3,12 +3,16 @@ server:
 spring:
   application:
     name: gateway-service
+  profiles:
+    active: dev
 #nacos服务注册与配置中心
   config:
     import: nacos:${spring.application.name}
   cloud:
     nacos:
       server-addr: ${nacos.address}
+      discovery:
+        namespace: ${cloud.nacos.namespace}
       config:
         file-extension: yaml
 # gateway相关配置
@@ -25,6 +29,12 @@ spring:
             lb://products-service # 路由的目标服务，lb代表负载均衡，会从注册中心获取服务实例列表，然后进行负载均衡
           predicates:
             - Path=/commodity/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
+
+        - id: carts-service # 路由规则id,可自定义，但必须唯一
+          uri:
+            lb://carts-service # 路由的目标服务，lb代表负载均衡，会从注册中心获取服务实例列表，然后进行负载均衡
+          predicates:
+            - Path=/cart/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
 # dubbo + nacos 服务注册发现
 nacos:
   address: 121.43.197.241:8848
