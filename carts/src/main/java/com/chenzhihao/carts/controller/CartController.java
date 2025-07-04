@@ -46,7 +46,7 @@ public class CartController {
 
     /**
      * 移除购物车
-     * @param commodityIds
+     * @param commodityIds 商品id集合
      * @return {@link Result }<{@link ? }>
      */
     @DeleteMapping

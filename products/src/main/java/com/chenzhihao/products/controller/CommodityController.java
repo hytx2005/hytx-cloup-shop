@@ -33,6 +33,11 @@ public class CommodityController {
     @Autowired
     private ICommodityService commodityService;
 
+    /**
+     * 根据id查找商品信息
+     * @param id 商品id
+     * @return {@link Result }<{@link Commodity }>
+     */
     @GetMapping("/get/{id}")
     public Result<Commodity> getCommodityById(@PathVariable Long id) {
         Commodity commodity = commodityService.getCommodityFromCache(id);
@@ -50,6 +55,10 @@ public class CommodityController {
         return commodityService.search(queryDTO);
     }
 
+    /**
+     * 测试经过网关之后是否获取到userId
+     * @return {@link Result }<{@link Long 用户userId}>
+     */
     @GetMapping("/testId")
     public Result<Long> testId() {
         Long id = UserContext.getUserId();
