@@ -40,7 +40,7 @@ public class CommodityDTO implements Serializable {
     private String imageUrl;
 
     /**
-     * 商品库存
+     * 已售数量
      */
     private Integer sold;
 
