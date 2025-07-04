@@ -55,7 +55,7 @@ nacos:
   #  117.72.124.24:8849
 dubbo:
   protocol:
-    port: 20882
+    port: -1
   consumer:
     check: false
   registry:
