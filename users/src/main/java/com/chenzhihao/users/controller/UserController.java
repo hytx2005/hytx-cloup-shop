@@ -19,9 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
- * <p>
+ *
  * 用户模块 前端控制器
- * </p>
  *
  * @author hqh
  * @since 2025-06-27

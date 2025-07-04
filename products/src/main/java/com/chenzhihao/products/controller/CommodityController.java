@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 /**
- * <p>
  * 商品模块 前端控制器
- * </p>
- *
  * @author hqh
  * @since 2025-06-27
  */

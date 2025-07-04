@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
  * 购物车 前端控制器
- * </p>
  *
  * @author hqh
  * @since 2025-07-03
