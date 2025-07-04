@@ -25,9 +25,21 @@ import java.util.stream.Collectors;
  * @since 2025-07-03
  */
 public interface ICartService extends IService<Cart> {
+    /**
+     * 添加购物车
+     * @param cartDTO 购物车实体类
+     */
     void addCart(CartDTO cartDTO);
 
+    /**
+     * 查询购物车
+     * @return {@link List }<{@link CartVO }>
+     */
     List<CartVO> queryMyCarts();
 
+    /**
+     * 移除购物车
+     * @param itemIds 商品id集合
+     */
     void removeByCommodityIds(Collection<Long> itemIds);
 }

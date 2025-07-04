@@ -37,7 +37,7 @@ public class CartVO {
     private String commodityName;
 
     /**
-     * 同一商品总价
+     * 同一商品单价
      */
     private BigDecimal commodityPrice;
 

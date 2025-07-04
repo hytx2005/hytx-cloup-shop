@@ -72,6 +72,9 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
         // 3.处理VO中的商品信息
         handleCartCommodities(vos);
+        for (CartVO vo : vos) {
+            cartMapper.updateCartByCommodity(vo);
+        }
 
         // 4.返回
         return vos;
