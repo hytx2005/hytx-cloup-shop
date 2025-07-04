@@ -19,16 +19,34 @@ import java.math.BigDecimal;
 @Builder
 public class CommodityDTO implements Serializable {
 
+    /**
+     * 商品id
+     */
     private Long id;
 
+    /**
+     * 商品名称
+     */
     private String name;
 
+    /**
+     * 商品价格
+     */
     private BigDecimal price;
 
+    /**
+     * 商品图片地址
+     */
     private String imageUrl;
 
+    /**
+     * 商品库存
+     */
     private Integer sold;
 
+    /**
+     * 商品规格
+     */
     private String spec;
 
 

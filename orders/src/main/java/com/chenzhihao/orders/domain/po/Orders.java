@@ -48,11 +48,11 @@ public class Orders implements Serializable {
      */
     private String payStatus;
 
-    /**
-     * 未知，已发货，已收货
-     */
-    private String shipStatus;
 
+    /**
+     * 商品id
+     */
+    private Long commodityId;
 
     /**
      * 商品名称
@@ -63,6 +63,11 @@ public class Orders implements Serializable {
      * 商品图片
      */
     private String commodityUrl;
+
+    /**
+     * 商品数量
+     */
+    private Integer commodityNum;
 
     /**
      * 订单号
