@@ -1,21 +1,15 @@
 package com.chenzhihao.orders.controller;
 
 
-import com.chenzhihao.api.dto.CommodityDTO;
 import com.chenzhihao.api.dto.OrderCreDto;
-import com.chenzhihao.api.dto.OrderDetailDto;
-import com.chenzhihao.api.facade.CommodityFacade;
-import com.chenzhihao.api.vo.CommodityPayVo;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.service.IOrdersService;
-import com.chenzhihao.shopcommon.annotation.DubboServiceAop;
+import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,12 +35,14 @@ public class OrdersController {
      * @return {@link Result }<{@link String }
      */
     @GetMapping("/pay")
+    @DubboException(message = "商品库存不足")
     public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
         String order = ordersService.createOrder(orderCreDto);
         return Result.success(order);
     }
 
     @GetMapping("/test")
+    @DubboException(message = "商品库存不足")
     public Result<?> getCommodity1() {
         throw new BaseException("测试异常");
     }

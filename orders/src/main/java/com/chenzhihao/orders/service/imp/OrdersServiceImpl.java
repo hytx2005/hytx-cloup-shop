@@ -9,7 +9,6 @@ import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
 import com.chenzhihao.orders.service.IOrdersService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chenzhihao.shopcommon.annotation.DubboServiceAop;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
 import com.chenzhihao.shopcommon.util.UserContext;
@@ -50,7 +49,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      * @return {@link String }
      */
     @Override
-    @DubboServiceAop(message = "商品库存不足")
+
     public String createOrder(OrderCreDto orderCreDto) {
         Long userId = UserContext.getUserId();
         if (userId == null){
