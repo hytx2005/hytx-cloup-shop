@@ -7,10 +7,11 @@ import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.util.UserContext;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
-
+@Component
 @DubboService
 public class CommodityFacadeImp implements CommodityFacade {
 
