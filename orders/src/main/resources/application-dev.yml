@@ -4,3 +4,11 @@ cs:
     name: summer
     user: summer
     pwd: summer
+
+dubbo:
+  registry:
+    namespace: hqh
+
+cloud:
+  nacos:
+    namespace: hqh

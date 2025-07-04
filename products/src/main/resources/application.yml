@@ -68,7 +68,7 @@ dubbo:
 
 
 mybatis-plus:
-  mapper-locations: classpath*:mapper/*.xml
+  mapper-locations: classpath*:mapper/mp/*.xml
   type-aliases-package: com.cehnzhihao.users.domain.po
   configuration:
     map-underscore-to-camel-case: true
