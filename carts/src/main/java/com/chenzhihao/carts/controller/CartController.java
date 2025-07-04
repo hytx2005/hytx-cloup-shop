@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
  * 购物车 前端控制器
- * </p>
  *
  * @author hqh
  * @since 2025-07-03
@@ -46,7 +44,7 @@ public class CartController {
 
     /**
      * 移除购物车
-     * @param commodityIds
+     * @param commodityIds 商品id集合
      * @return {@link Result }<{@link ? }>
      */
     @DeleteMapping
