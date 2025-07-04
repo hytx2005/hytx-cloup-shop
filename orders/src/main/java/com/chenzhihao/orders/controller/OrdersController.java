@@ -41,10 +41,9 @@ public class OrdersController {
      * @return {@link Result }<{@link String }
      */
     @GetMapping("/pay")
-    public Result<String> createOrder(OrderCreDto orderCreDto) {
-
-        ordersService.createOrder(orderCreDto);
-        return Result.success();
+    public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
+        String order = ordersService.createOrder(orderCreDto);
+        return Result.success(order);
     }
 
     @GetMapping("/test")
