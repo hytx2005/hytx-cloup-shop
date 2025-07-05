@@ -34,7 +34,7 @@ nacos:
   #  117.72.124.24:8849
 dubbo:
   protocol:
-    port: 20881
+    port: -1
   consumer:
     timeout: 5000
     check: false
