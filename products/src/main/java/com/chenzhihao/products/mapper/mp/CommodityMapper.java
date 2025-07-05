@@ -27,8 +27,8 @@ public interface CommodityMapper extends BaseMapper<Commodity> {
 
     /**
      * 批量更新商品的已售数量
-     * @param  commodities 商品列表
+     * @param  commodity 商品列表
      * @return int
      */
-    int batchUpdateSold(@Param("commodities") List<Commodity> commodities);
+    int batchUpdateSold(@Param("commodity") Commodity commodity);
 }

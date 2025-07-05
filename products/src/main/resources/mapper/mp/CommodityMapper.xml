@@ -24,10 +24,8 @@
     </select>
 
     <update id="batchUpdateSold">
-        <foreach collection="commodities" item="commodity" separator=";">
             UPDATE commodity
             SET sold = #{commodity.sold}
             WHERE id = #{commodity.id}
-        </foreach>
     </update>
 </mapper>

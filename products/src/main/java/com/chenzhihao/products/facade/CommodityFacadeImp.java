@@ -79,7 +79,7 @@ public class CommodityFacadeImp implements CommodityFacade {
             Commodity commodity = commodityMap.get(commodityId);
 
             if (commodity == null || commodity.getStock() - commodity.getSold() < num){
-                throw new BaseException("库存不足");
+                throw new RuntimeException("库存不足");
             }
             commodity.setSold(commodity.getSold() + num);
             commodityMap.put(commodityId, commodity);
@@ -92,8 +92,8 @@ public class CommodityFacadeImp implements CommodityFacade {
                     .build();
 
             result.add(commodityPayVo);
+            commodityMapper.batchUpdateSold(commodity);
         }
-        commodityMapper.batchUpdateSold(commodities);
         return result;
     }
 
