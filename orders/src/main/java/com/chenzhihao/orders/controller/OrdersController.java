@@ -1,8 +1,12 @@
 package com.chenzhihao.orders.controller;
 
 
+import com.chenzhihao.api.dto.OrderCreDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.service.IOrdersService;
+import com.chenzhihao.shopcommon.annotation.DubboException;
+import com.chenzhihao.shopcommon.exception.BaseException;
+import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,30 @@ import java.util.List;
 public class OrdersController {
     @Autowired
     private IOrdersService ordersService;
+
+
+
+
+    /**
+     * 生成订单号
+     *    1.扣减商品数量
+     *    2.生成订单表数据
+     *    3.去购物车中删除对应数据
+     * @param orderCreDto 订单信息
+     * @return {@link Result }<{@link String }
+     */
+    @GetMapping("/pay")
+    @DubboException(message = "商品库存不足")
+    public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
+        String order = ordersService.createOrder(orderCreDto);
+        return Result.success(order);
+    }
+
+    @GetMapping("/test")
+    @DubboException(message = "商品库存不足")
+    public Result<?> getCommodity1() {
+        throw new BaseException("测试异常");
+    }
 
     /**
      * 添加订单

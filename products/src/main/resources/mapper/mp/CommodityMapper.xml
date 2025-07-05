@@ -2,5 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chenzhihao.products.mapper.mp.CommodityMapper">
 
+    <resultMap id="CommodityResultMap" type="com.chenzhihao.products.domain.po.Commodity">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="price" property="price"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="stock" property="stock"/>
+        <result column="sold" property="sold"/>
+        <result column="spec" property="spec"/>
+        <result column="status" property="status"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
 
+
+    <select id="selectCommoditiesForUpdate" resultMap="CommodityResultMap">
+        SELECT * FROM commodity
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="batchUpdateSold">
+            UPDATE commodity
+            SET sold = #{commodity.sold}
+            WHERE id = #{commodity.id}
+    </update>
 </mapper>
