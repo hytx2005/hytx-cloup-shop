@@ -23,19 +23,21 @@ public class DubboAop {
     }
 
     @Around("dubboService()")
-    public Result<Object> around(ProceedingJoinPoint pjp){
+    public Object around(ProceedingJoinPoint pjp){
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         try {
-            Object result = pjp.proceed();
-            return Result.success(result);
+            return pjp.proceed();
         }
         catch (RuntimeException e){
             DubboException dubboServiceAop = method.getAnnotation(DubboException.class);
             if (dubboServiceAop != null) {
                 // 获取 message 属性值
                 String message = dubboServiceAop.message();
-                return Result.success(message);
+                if (message.isEmpty()){
+                    return Result.error(message);
+                }
+                return Result.error(message);
             }
         }
         catch (Throwable e){
