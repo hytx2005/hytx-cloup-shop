@@ -1,12 +1,9 @@
 package com.chenzhihao.orders.service;
 
 import com.chenzhihao.api.dto.OrderCreDto;
-import com.chenzhihao.api.vo.CommodityPayVo;
+import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chenzhihao.shopcommon.result.Result;
-
-import java.util.List;
 
 /**
  * <p>
@@ -27,4 +24,12 @@ public interface IOrdersService extends IService<Orders> {
      * @return {@link String }
      */
     String createOrder(OrderCreDto orderCreDto);
+
+
+    /**
+     * 根据订单id集合删除id
+     * @param dto 订单信息集合
+     * @return boolean
+     */
+    boolean deleteOrders(OrderDelDto dto);
 }

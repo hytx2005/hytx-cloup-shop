@@ -62,6 +62,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             log.info("userId:{}",userId);
         }catch (JWTException e){
             ServerHttpResponse response = exchange.getResponse();
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
             log.error("token解析失败");
             return response.setComplete();
         }

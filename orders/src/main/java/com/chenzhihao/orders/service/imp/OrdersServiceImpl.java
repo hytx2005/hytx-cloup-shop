@@ -1,10 +1,12 @@
 package com.chenzhihao.orders.service.imp;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chenzhihao.api.dto.OrderCreDto;
 import com.chenzhihao.api.dto.OrderDetailDto;
 import com.chenzhihao.api.facade.CartFacade;
 import com.chenzhihao.api.facade.CommodityFacade;
 import com.chenzhihao.api.vo.CommodityPayVo;
+import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
 import com.chenzhihao.orders.service.IOrdersService;
@@ -15,7 +17,6 @@ import com.chenzhihao.shopcommon.util.UserContext;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,8 +39,12 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @DubboReference
     private CartFacade cartFacade;
 
-    @Autowired
+
     private OrdersMapper ordersMapper;
+    @Autowired
+    public void setOrdersMapper(OrdersMapper ordersMapper) {
+        this.ordersMapper = ordersMapper;
+    }
     /**
      * 生成订单号
      *  1.扣减商品数量
@@ -86,5 +91,20 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         // 3.去购物车中删除对应数据
         cartFacade.deleteCart(ids);
         return orderNo;
+    }
+
+    /**
+     * 根据订单id集合删除id
+     * @param dto 订单信息集合
+     * @return boolean
+     */
+    @Override
+    public boolean deleteOrders(OrderDelDto dto) {
+        // 构造删除条件  id in IDs 并且 userId = 当前登录用户id
+        QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", dto.getIds());
+        queryWrapper.eq("user_id", UserContext.getUserId());
+        int delete = ordersMapper.delete(queryWrapper);
+        return delete > 0;
     }
 }
