@@ -1,4 +1,4 @@
-package com.chenzhihao.users.service.Imp;
+package com.chenzhihao.users.service.imp;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -51,9 +51,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
             throw new ParamEmptyException("用户名或密码为空");
         }
-        password = PasswordUtil.hashPassword(password);
         String password1 = userMapper.getPassword(username);
-        if (PasswordUtil.checkPassword(password, password1)) {
+        if (!PasswordUtil.checkPassword(password, password1)) {
             throw new ParamEmptyException("用户名或密码错误");
         }
         User login = userMapper.login(username);
