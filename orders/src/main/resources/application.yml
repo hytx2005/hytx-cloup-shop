@@ -24,7 +24,7 @@ spring:
 
   # kafka相关配置
   kafka:
-    bootstrap-servers: 117.72.116.151:9092
+    bootstrap-servers: 122.51.149.223:9092
     producer:
       retries: 3 #设置大于0，会将发送失败的记录重新发送
       batch-size: 16384
