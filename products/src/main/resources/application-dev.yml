@@ -12,3 +12,9 @@ dubbo:
 cloud:
   nacos:
     namespace: hqh
+
+xxl:
+  job:
+    admin:
+      accessToken: default_token
+      addresses: http://127.0.0.1:8088/xxl-job-admin
