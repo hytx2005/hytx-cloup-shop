@@ -65,6 +65,18 @@ dubbo:
     qos-enable: off
     name: ${spring.application.name}-dubbo
 
+#xxl-job
+xxl:
+  job:
+    admin:
+      addresses: ${xxl.job.admin.addresses}
+    accessToken: ${xxl.job.accessToken}
+    executor:
+      appname: commodity-xxl-job
+      ip: 127.0.0.1
+      port: 9999
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 30
 
 
 mybatis-plus:
