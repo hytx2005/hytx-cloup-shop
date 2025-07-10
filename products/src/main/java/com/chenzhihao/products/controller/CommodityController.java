@@ -2,6 +2,7 @@ package com.chenzhihao.products.controller;
 
 
 import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.domain.vo.CommodityRedisVo;
 import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;
@@ -36,8 +37,8 @@ public class CommodityController {
      * @return {@link Result }<{@link Commodity }>
      */
     @GetMapping("/get/{id}")
-    public Result<Commodity> getCommodityById(@PathVariable Long id) {
-        Commodity commodity = commodityService.getCommodityFromCache(id);
+    public Result<CommodityRedisVo> getCommodityById(@PathVariable Long id) {
+        CommodityRedisVo commodity = commodityService.getCommodityFromCache(id);
         return Result.success(commodity);
     }
 
