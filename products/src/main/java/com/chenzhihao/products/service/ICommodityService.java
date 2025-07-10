@@ -22,5 +22,8 @@ public interface ICommodityService extends IService<Commodity> {
       * @return {@link Commodity }
       */
      Commodity getCommodityFromCache(Long id);
+
+
+
     PageResult<CommodityEsDoc> search(CommodityQueryDTO dto);
 }
