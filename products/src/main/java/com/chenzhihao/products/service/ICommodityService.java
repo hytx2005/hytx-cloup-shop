@@ -4,6 +4,7 @@ import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chenzhihao.products.domain.vo.CommodityRedisVo;
 import com.chenzhihao.products.domain.vo.PageResult;
 
 /**
@@ -17,11 +18,11 @@ import com.chenzhihao.products.domain.vo.PageResult;
 public interface ICommodityService extends IService<Commodity> {
 
      /**
-      * 旁路缓存策略 - 用商品id获取商品id
+      * 旁路缓存策略 - 用商品id获取商品信息
       * @param id 商品id
-      * @return {@link Commodity }
+      * @return {@link CommodityRedisVo }
       */
-     Commodity getCommodityFromCache(Long id);
+     CommodityRedisVo getCommodityFromCache(Long id);
 
 
 
