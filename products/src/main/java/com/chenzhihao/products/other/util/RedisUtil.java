@@ -26,7 +26,7 @@ public class RedisUtil {
     @Autowired
     RedissonClient redisson;
 
-    public static final String COMMODITY_HASH_KEY = "commodity";
+    public static final String COMMODITY_HASH_KEY = "payCommodity";
 
     private static final long CACHE_TIME = 30;
 
@@ -44,6 +44,7 @@ public class RedisUtil {
         CommodityRedisVo commodityRedisVo = CommodityRedisVo.builder().build();
         BeanUtils.copyProperties(commodity, commodityRedisVo);
         commodityRedisVo.setPayNum(0);
+        commodityRedisVo.setVersion(0);
         String json = null;
         try {
             json = objectMapper.writeValueAsString(commodityRedisVo);

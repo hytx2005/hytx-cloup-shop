@@ -73,6 +73,7 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         commodityVo = CommodityRedisVo.builder().build();
         BeanUtils.copyProperties(commodity, commodityVo);
         commodityVo.setPayNum(0);
+        commodityVo.setVersion(0);
         return commodityVo;
     }
 

@@ -65,4 +65,10 @@ public class CommodityRedisVo implements Serializable {
      * 锁定库存，等待支付结果到达再处理
      */
     private Integer payNum;
+
+
+    /**
+     * 标记库存是否被修改过
+     */
+    private Integer version;
 }
