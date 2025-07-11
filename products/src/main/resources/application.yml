@@ -60,7 +60,7 @@ dubbo:
     check: false
   registry:
     address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
-    register-mode: instance
+    register-mode: application
   application:
     qos-enable: off
     name: ${spring.application.name}-dubbo
