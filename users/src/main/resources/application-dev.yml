@@ -7,8 +7,8 @@ cs:
 
 dubbo:
   nacos:
-    namespace: hqh
+    namespace: dhx
 
 cloud:
   nacos:
-    namespace: hqh
+    namespace: dhx
