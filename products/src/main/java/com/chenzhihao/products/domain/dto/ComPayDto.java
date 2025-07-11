@@ -1,5 +1,7 @@
 package com.chenzhihao.products.domain.dto;
 
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.List;
  * 下单请求参数
  * @author dhx
  */
+@Data
 public class ComPayDto implements Serializable {
 
     @Serial

@@ -1,9 +1,14 @@
 package com.chenzhihao.products.service.imp;
 
 
+import com.chenzhihao.api.dto.OrderForPay;
+import com.chenzhihao.api.facade.OrderFacade;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
+import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
+import com.chenzhihao.products.domain.dto.PayDetail;
 import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
 import com.chenzhihao.products.other.util.KafkaSendUtil;
 import com.chenzhihao.products.other.util.RedisUtil;
@@ -13,7 +18,11 @@ import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import com.chenzhihao.products.service.ICommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chenzhihao.shopcommon.exception.BaseException;
+import com.chenzhihao.shopcommon.result.Result;
+import com.chenzhihao.shopcommon.util.OrderNoUtil;
+import com.chenzhihao.shopcommon.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.dromara.easyes.core.biz.EsPageInfo;
@@ -22,6 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -41,6 +53,8 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     private CommodityMapper commodityMapper;
     @Autowired
     private KafkaSendUtil kafkaSendUtil;
+    @DubboReference
+    private OrderFacade orderFacade;
 
 
     /**
@@ -80,8 +94,8 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     @Resource
     private CommodityEsMapper commodityEsMapper;
 
-        @Override
-        public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
+    @Override
+    public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
             // 1. 创建查询条件构造器
             LambdaEsQueryWrapper<CommodityEsDoc> wrapper = new LambdaEsQueryWrapper<>();
 
@@ -119,4 +133,27 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         }
 
 
+
+
+
+
+    @Override
+    public Result<ComPayVo> crePay(ComPayDto comPayDto) {
+        UserContext.setUserId(3L);
+        OrderForPay orderForPay = OrderForPay.builder()
+                .id(1L)
+                .num(2)
+                .price(new BigDecimal("12999.00"))
+                .imageUrl("/images/product_1.jpg")
+                .name("新款M3芯片MacBook Pro笔记本电脑")
+                .build();
+        String orderNo = OrderNoUtil.generateOrderNo();
+        List<OrderForPay> orderForPays = new ArrayList<>();
+        orderForPays.add(orderForPay);
+        orderFacade.createOrder(orderForPays,orderNo);
+
+        return null;
     }
+
+
+}
