@@ -2,6 +2,7 @@ package com.chenzhihao.products.service.imp;
 
 
 import com.chenzhihao.api.dto.OrderForPay;
+import com.chenzhihao.api.facade.CartFacade;
 import com.chenzhihao.api.facade.OrderFacade;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.ComPayDto;
@@ -17,6 +18,7 @@ import com.chenzhihao.products.mapper.es.CommodityEsMapper;
 import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import com.chenzhihao.products.service.ICommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
@@ -36,10 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
  * 商品模块 服务实现类
- * </p>
- *
  * @author hqh
  * @since 2025-06-27
  */
@@ -55,6 +54,8 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     private KafkaSendUtil kafkaSendUtil;
     @DubboReference
     private OrderFacade orderFacade;
+    @DubboReference
+    private CartFacade cartFacade;
 
 
     /**
@@ -133,26 +134,63 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         }
 
 
-
-
-
-
+    /**
+     * 创建支付订单
+     * @param comPayDto 商品信息
+     * @return {@link Result }<{@link ComPayVo }>
+     */
     @Override
+    @DubboException
     public Result<ComPayVo> crePay(ComPayDto comPayDto) {
-        UserContext.setUserId(3L);
-        OrderForPay orderForPay = OrderForPay.builder()
-                .id(1L)
-                .num(2)
-                .price(new BigDecimal("12999.00"))
-                .imageUrl("/images/product_1.jpg")
-                .name("新款M3芯片MacBook Pro笔记本电脑")
-                .build();
-        String orderNo = OrderNoUtil.generateOrderNo();
-        List<OrderForPay> orderForPays = new ArrayList<>();
-        orderForPays.add(orderForPay);
-        orderFacade.createOrder(orderForPays,orderNo);
 
-        return null;
+        // 1.从redis中获取商品信息，调用service层接口，保证商品信息已经存储在redis
+        List<OrderForPay> forRedis = getComForRedis(comPayDto.getPayDetails());
+        // 2.去redis校验商品库存是否足够
+        boolean b = redisUtil.batchCheckCom(comPayDto.getPayDetails());
+        if (!b) {
+            throw  new BaseException("商品库存不足");
+        }
+
+        // 3.生成订单号
+        String orderNo = OrderNoUtil.generateOrderNo();
+
+        // 4.调用订单dubbo服务，生成订单数据
+        orderFacade.createOrder(forRedis,orderNo);
+
+
+        // 5.调用购物车服务，删除数据
+        List<Long> ids = new ArrayList<>();
+        for (PayDetail payDetail : comPayDto.getPayDetails()) {
+            ids.add(payDetail.getCommodityId());
+        }
+        cartFacade.deleteCart(ids);
+        // TODO kafka服务
+        ComPayVo comPayVo = new ComPayVo();
+        comPayVo.setOrderNo(orderNo);
+        return Result.success(comPayVo);
+    }
+
+
+    /**
+     *  获取对应商品信息，保证商品信息存储在redis中
+     * @param details 商品信息
+     * @return {@link List }<{@link OrderForPay }>
+     */
+    @Override
+    public List<OrderForPay> getComForRedis(List<PayDetail> details) {
+        List<OrderForPay> result = new ArrayList<>();
+        for (PayDetail detail : details) {
+            CommodityRedisVo commodity = getCommodityFromCache(detail.getCommodityId());
+            OrderForPay orderForPay = OrderForPay.builder()
+                    .id(commodity.getId())
+                    .price(commodity.getPrice())
+                    .name(commodity.getName())
+                    .imageUrl(commodity.getImageUrl())
+                    .num(detail.getNum())
+                    .build();
+            result.add(orderForPay);
+        }
+        return result;
     }
 
 

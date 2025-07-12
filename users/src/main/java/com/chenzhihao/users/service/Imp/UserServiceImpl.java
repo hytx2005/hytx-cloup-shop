@@ -28,7 +28,6 @@ import java.util.Map;
  * @author hqh
  * @since 2025-06-27
  */
-@DubboService
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 

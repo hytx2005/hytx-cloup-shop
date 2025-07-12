@@ -73,7 +73,7 @@ public class RedisUtil {
      * @param addPayNum 需要增加到 payNum 的值
      * @return 库存充足并更新成功返回 true，否则返回 false
      */
-    public boolean checkStockAndUpdate(Long id, Integer addPayNum) {
+    private boolean checkStockAndUpdate(Long id, Integer addPayNum) {
         String lockKey = LOCK_KEY + id;
         RLock lock = redisson.getLock(lockKey);
         try {
@@ -113,7 +113,7 @@ public class RedisUtil {
      * 这里使用的是hash结构，key为commodity，value为一个map，map的key为商品id，value为商品信息
      * @param maps 商品id和购买的数量 的集合
      */
-    public void rollbackStockAndVersion(Map<Long, Integer> maps) {
+    private void rollbackStockAndVersion(Map<Long, Integer> maps) {
         for (Long id : maps.keySet()) {
             String lockKey = LOCK_KEY + id;
             RLock lock = redisson.getLock(lockKey);
@@ -136,7 +136,11 @@ public class RedisUtil {
     }
 
 
-
+    /**
+     * 批量检查库存并更新
+     * @param details 商品信息
+     * @return boolean
+     */
     public boolean batchCheckCom(List<PayDetail> details){
         // 对details进行排序
        details.sort(new Comparator<PayDetail>() {

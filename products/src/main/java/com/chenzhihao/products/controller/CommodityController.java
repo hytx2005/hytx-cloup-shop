@@ -76,22 +76,5 @@ public class CommodityController {
        return commodityService.crePay(comPayDto);
     }
 
-    @Autowired
-    private RedisUtil redisUtil;
-
-    @GetMapping("/test/{num}")
-    public Result<?> tes1t(@PathVariable(name = "num") Integer num){
-        List<PayDetail> payDetails = new ArrayList<>();
-        PayDetail payDetail = new PayDetail();
-        payDetail.setCommodityId(7L);
-        payDetail.setNum(num);
-        payDetails.add(payDetail);
-        PayDetail payDetail1 = new PayDetail();
-        payDetail1.setCommodityId(8L);
-        payDetail1.setNum(num);
-        payDetails.add(payDetail1);
-        boolean b = redisUtil.batchCheckCom(payDetails);
-        return Result.success(b);
-    }
 
 }
