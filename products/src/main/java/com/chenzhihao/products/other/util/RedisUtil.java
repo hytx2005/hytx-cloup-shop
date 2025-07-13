@@ -1,8 +1,11 @@
 package com.chenzhihao.products.other.util;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chenzhihao.products.domain.dto.PayDetail;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
+import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import lombok.Data;
 import org.redisson.api.*;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +27,8 @@ public class RedisUtil {
 
     @Autowired
     RedissonClient redisson;
+    @Autowired
+    CommodityMapper commodityMapper;
 
     public static final String COMMODITY_HASH_KEY = "payCommodity";
 
@@ -162,5 +167,48 @@ public class RedisUtil {
             }
         }
         return true;
+    }
+
+
+    /**
+     * 获取redis中存储的所有商品信息
+     * @return {@link Map }<{@link Long },{@link CommodityRedisVo }>
+     */
+    public Map<Long,CommodityRedisVo> getCommodityMap(){
+        return redisson.getMap(COMMODITY_HASH_KEY);
+    }
+
+
+    /**
+     * 更新redis商品信息到mysql中
+     * @param vo 商品信息
+     */
+    public void updateCommodityToMysql(CommodityRedisVo vo){
+        String lockKey = LOCK_KEY + vo.getId();
+        RLock lock = redisson.getLock(lockKey);
+        try {
+            if (lock.tryLock(10,30,TimeUnit.SECONDS)){
+                Commodity commodity = Commodity.builder()
+                        .id(vo.getId())
+                        .sold(vo.getSold())
+                        .build();
+                UpdateWrapper<Commodity> wrapper = new UpdateWrapper<>();
+                wrapper.eq("id",commodity.getId());
+                commodityMapper.update(commodity,wrapper);
+
+                // 更新redis中的version字段，标记redis中的数据尚未更改
+                RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+                CommodityRedisVo commodityRedisVo = map.get(vo.getId());
+                commodityRedisVo.setVersion(0);
+                map.put(vo.getId(), commodityRedisVo);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+
     }
 }
