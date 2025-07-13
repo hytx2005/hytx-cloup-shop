@@ -65,12 +65,12 @@ public class CommodityController {
         return Result.success(id);
     }
 
-    /*
+
+    /**
      * 根据商品信息生成订单
      * @param comPayDto 商品信息
      * @return {@link Result }<{@link ComPayVo }>
-     **/
-
+     */
     @PostMapping("/pay")
     public Result<ComPayVo> crePay(@RequestBody ComPayDto comPayDto){
        return commodityService.crePay(comPayDto);
