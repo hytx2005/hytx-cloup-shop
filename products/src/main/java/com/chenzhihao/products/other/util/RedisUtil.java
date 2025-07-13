@@ -1,17 +1,16 @@
 package com.chenzhihao.products.other.util;
 
+import com.chenzhihao.products.domain.dto.PayDetail;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
-import org.redisson.api.RMap;
-import org.redisson.api.RMapCache;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,13 +25,9 @@ public class RedisUtil {
     @Autowired
     RedissonClient redisson;
 
-    public static final String COMMODITY_HASH_KEY = "commodity";
+    public static final String COMMODITY_HASH_KEY = "payCommodity";
 
-    private static final long CACHE_TIME = 30;
 
-    private static final TimeUnit CACHE_TIME_UNIT = TimeUnit.MINUTES;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 将商品信息存入redis中
@@ -40,17 +35,12 @@ public class RedisUtil {
      * @param commodity 商品信息
      */
     public void saveCommodity(Commodity commodity){
-        RMapCache<String, String> map = redisson.getMapCache(COMMODITY_HASH_KEY);
+        RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
         CommodityRedisVo commodityRedisVo = CommodityRedisVo.builder().build();
         BeanUtils.copyProperties(commodity, commodityRedisVo);
         commodityRedisVo.setPayNum(0);
-        String json = null;
-        try {
-            json = objectMapper.writeValueAsString(commodityRedisVo);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        map.put(commodityRedisVo.getId().toString(), json,CACHE_TIME,CACHE_TIME_UNIT);
+        commodityRedisVo.setVersion(0);
+        map.put(commodityRedisVo.getId(), commodityRedisVo);
     }
 
 
@@ -60,16 +50,8 @@ public class RedisUtil {
      * @return {@link Commodity }
      */
     public CommodityRedisVo getCommodity(Long id){
-        RMapCache<String, String> map = redisson.getMapCache(COMMODITY_HASH_KEY);
-        String json =  map.get(id.toString());
-        if (json != null) {
-            try {
-                return objectMapper.readValue(json, CommodityRedisVo.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
+        RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+        return map.get(id);
     }
 
     /**
@@ -77,8 +59,108 @@ public class RedisUtil {
      * @param id 商品id
      */
     public void deleteCommodity(Long id) {
-        RMap<String, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
-        map.remove(id.toString());
+        RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+        map.remove(id);
     }
 
+
+
+    public static final String LOCK_KEY = "lock_commodity:";
+
+    /**
+     * 检查库存并更新 payNum 和 version 字段
+     * @param id 商品 ID
+     * @param addPayNum 需要增加到 payNum 的值
+     * @return 库存充足并更新成功返回 true，否则返回 false
+     */
+    private boolean checkStockAndUpdate(Long id, Integer addPayNum) {
+        String lockKey = LOCK_KEY + id;
+        RLock lock = redisson.getLock(lockKey);
+        try {
+            // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
+            if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+                RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+                CommodityRedisVo vo = map.get(id);
+
+                int stock = vo.getStock();
+                int sold = vo.getSold();
+                int payNum = vo.getPayNum();
+                int version = vo.getVersion();
+
+                int availableStock = stock - sold - payNum;
+                if (availableStock >= addPayNum) {
+                    payNum += addPayNum;
+                    version++;
+                    vo.setVersion(version);
+                    vo.setPayNum(payNum);
+                    map.put(id, vo);
+                    return true;
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * 库存回滚
+     * 这里使用的是hash结构，key为commodity，value为一个map，map的key为商品id，value为商品信息
+     * @param maps 商品id和购买的数量 的集合
+     */
+    private void rollbackStockAndVersion(Map<Long, Integer> maps) {
+        for (Long id : maps.keySet()) {
+            String lockKey = LOCK_KEY + id;
+            RLock lock = redisson.getLock(lockKey);
+            try {
+                if (lock.tryLock(10,30,TimeUnit.SECONDS)){
+                    RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+                    CommodityRedisVo commodityRedisVo = map.get(id);
+                    commodityRedisVo.setPayNum(commodityRedisVo.getPayNum() - maps.get(id));
+                    commodityRedisVo.setVersion(commodityRedisVo.getVersion() - 1);
+                    map.put(id, commodityRedisVo);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }finally {
+                if (lock.isHeldByCurrentThread()){
+                    lock.unlock();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 批量检查库存并更新
+     * @param details 商品信息
+     * @return boolean
+     */
+    public boolean batchCheckCom(List<PayDetail> details){
+        // 对details进行排序
+       details.sort(new Comparator<PayDetail>() {
+           @Override
+           public int compare(PayDetail o1, PayDetail o2) {
+               return o1.getCommodityId().compareTo(o2.getCommodityId());
+           }
+       });
+
+       Map<Long, Integer> success = new HashMap<>();
+        for (PayDetail detail : details) {
+            Long id = detail.getCommodityId();
+            Integer num = detail.getNum();
+            if (checkStockAndUpdate(id, num)){
+                success.put(id, num);
+            }else {
+                rollbackStockAndVersion(success);
+                return false;
+            }
+        }
+        return true;
+    }
 }

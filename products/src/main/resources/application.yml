@@ -46,8 +46,8 @@ spring:
       ack-mode: manual_immediate
 
   redis:
-    host: 117.72.124.24
-    port: 6379
+    host: 121.43.197.241
+    port: 16379
     database: 0
 # dubbo + nacos 服务注册发现
 nacos:
@@ -60,7 +60,7 @@ dubbo:
     check: false
   registry:
     address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
-    register-mode: instance
+    register-mode: application
   application:
     qos-enable: off
     name: ${spring.application.name}-dubbo

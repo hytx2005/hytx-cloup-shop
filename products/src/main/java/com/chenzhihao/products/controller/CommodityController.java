@@ -1,22 +1,23 @@
 package com.chenzhihao.products.controller;
 
 
+import com.chenzhihao.products.domain.dto.ComPayDto;
+import com.chenzhihao.products.domain.dto.PayDetail;
 import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
+import com.chenzhihao.products.other.util.RedisUtil;
 import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-import org.springframework.web.bind.annotation.RestController;
-
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -53,6 +54,7 @@ public class CommodityController {
         return commodityService.search(queryDTO);
     }
 
+
     /**
      * 测试经过网关之后是否获取到userId
      * @return {@link Result }<{@link Long 用户userId}>
@@ -62,5 +64,17 @@ public class CommodityController {
         Long id = UserContext.getUserId();
         return Result.success(id);
     }
+
+
+    /**
+     * 根据商品信息生成订单
+     * @param comPayDto 商品信息
+     * @return {@link Result }<{@link ComPayVo }>
+     */
+    @PostMapping("/pay")
+    public Result<ComPayVo> crePay(@RequestBody ComPayDto comPayDto){
+       return commodityService.crePay(comPayDto);
+    }
+
 
 }
