@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
 import java.util.Map;
 
 /**
@@ -27,9 +28,9 @@ public class ProductXxlJob {
     public void updateRedisToMysql() {
         // 分片参数
         int index = XxlJobHelper.getShardIndex();
-        log.info("分片参数为{}",index);
         int total = XxlJobHelper.getShardTotal();
-        log.info("分片总数为{}",total);
+        log.info("分片参数：index={}, total={}", index, total);
+        log.info("时间段：{}", LocalTime.now());
         Map<Long, CommodityRedisVo> commodityMap = redisUtil.getCommodityMap();
 
         for (Long l : commodityMap.keySet()) {
