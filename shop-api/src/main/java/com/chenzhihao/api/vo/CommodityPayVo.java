@@ -10,8 +10,7 @@ import lombok.Data;
 /**
  * 下单后返回商品信息
  *
- * @author hqh
- * @since 2025-06-27
+ * @author dhx
  */
 @Data
 @Builder

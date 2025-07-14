@@ -2,11 +2,9 @@ package com.chenzhihao.products.controller;
 
 
 import com.chenzhihao.products.domain.dto.ComPayDto;
-import com.chenzhihao.products.domain.dto.PayDetail;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
-import com.chenzhihao.products.other.util.RedisUtil;
 import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;
@@ -15,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * 商品模块 前端控制器
@@ -29,8 +23,11 @@ import java.util.List;
 @RequestMapping("/commodity")
 public class CommodityController {
 
-    @Autowired
     private ICommodityService commodityService;
+    @Autowired
+    public void setCommodityService(ICommodityService commodityService) {
+        this.commodityService = commodityService;
+    }
 
     /**
      * 根据id查找商品信息
