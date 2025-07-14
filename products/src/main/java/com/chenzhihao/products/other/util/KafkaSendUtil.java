@@ -117,6 +117,7 @@ public class KafkaSendUtil {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
+            ack.acknowledge();
         }
     }
 
