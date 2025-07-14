@@ -211,4 +211,35 @@ public class RedisUtil {
         }
 
     }
+
+
+    /**
+     * 订单未支付，回滚商品的锁定库存
+     * @param comId 商品id
+     * @param dec 需要回滚的数量
+     */
+    public void updateComPayNum(Long comId,Integer dec){
+        String lockKey = LOCK_KEY + comId;
+        RLock lock = redisson.getLock(lockKey);
+        try {
+            // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
+            if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+                RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+                CommodityRedisVo vo = map.get(comId);
+                if (vo == null){
+                    return;
+                }
+                Integer payNum = vo.getPayNum();
+                payNum -= dec;
+                vo.setPayNum(payNum);
+                map.put(comId, vo);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
 }

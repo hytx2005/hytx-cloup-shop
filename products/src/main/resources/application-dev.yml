@@ -13,7 +13,9 @@ cloud:
   nacos:
     namespace: dhx
 
-
+pay:
+  maxTime: 10
+  consumerTime: 15
 
 xxl:
   job:
