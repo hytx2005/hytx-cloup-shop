@@ -163,17 +163,19 @@ public class KafkaSendUtil {
         try {
             // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
             if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
-                for (ComKafka comKafka : comKafkaList) {
-                    System.out.println(comKafka);
-                    LocalDateTime consumerTime = comKafka.getCreateTime();
-                    if (consumerTime.isAfter(LocalDateTime.now())){
+                LocalDateTime time = comKafkaList.getFirst().getCreateTime();
+                LocalDateTime now = LocalDateTime.now();
+                log.info("订单超时时间：{}，当前时间：{}", time, now);
+                if (time.isBefore(now)){
+                    for (ComKafka comKafka : comKafkaList) {
+                        System.out.println(comKafka);
                         log.info("订单超时，订单号：{}", orderNo);
                         redisUtil.updateComPayNum(comKafka.getComId(), comKafka.getNum());
-                        ORDER_MAP.remove(orderNo);
-                    }else {
-                        log.info("订单未超时，库存不回滚，订单号：{}", orderNo);
                     }
+                    ORDER_MAP.remove(orderNo);
                 }
+
+
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
