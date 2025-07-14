@@ -18,6 +18,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,9 +59,16 @@ public class KafkaSendUtil {
 
 
 
+
+
+
+
+
+
+
     public static final String UPDATE_ORDER_REDIS = "updateOrderRedis";
     public static final String UPDATE_KAFKA = "updateKafka:";
-    public static final Map<String,ComKafka> ORDER_MAP = new HashMap<>();
+    public static final Map<String,List<ComKafka>> ORDER_MAP = new HashMap<>();
 
     private RedissonClient redisson;
     @Autowired
@@ -80,7 +88,6 @@ public class KafkaSendUtil {
         LocalDateTime localDateTime = createTime.plusMinutes(minute);
         comKafka.setCreateTime(localDateTime);
         String message = JSONUtil.toJsonStr(comKafka);
-        log.info("下单{}", message);
         kafkaTemplate.send(UPDATE_ORDER_REDIS, message);
     }
 
@@ -94,8 +101,15 @@ public class KafkaSendUtil {
         try {
             // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
             if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
-                log.info("kafka监听到订单信息：{}", comKafka);
-                ORDER_MAP.put(comKafka.getOrderNo(), comKafka);
+                log.info("----------------kafka监听到订单信息：{}---------------", comKafka);
+                if (ORDER_MAP.containsKey(comKafka.getOrderNo())){
+                    List<ComKafka> comKafkaList = ORDER_MAP.get(comKafka.getOrderNo());
+                    comKafkaList.add(comKafka);
+                }else {
+                    List<ComKafka> comKafkaList = new ArrayList<>();
+                    comKafkaList.add(comKafka);
+                    ORDER_MAP.put(comKafka.getOrderNo(), comKafkaList);
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -139,8 +153,8 @@ public class KafkaSendUtil {
      * @param orderNo 订单号
      */
     public void updateRedisFromKafka(String orderNo) {
-        ComKafka comKafka = ORDER_MAP.get(orderNo);
-        if(comKafka == null){
+        List<ComKafka> comKafkaList = ORDER_MAP.get(orderNo);
+        if(comKafkaList == null){
             return;
         }
         String lockKey = UPDATE_KAFKA+orderNo;
@@ -148,13 +162,16 @@ public class KafkaSendUtil {
         try {
             // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
             if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
-                LocalDateTime consumerTime = comKafka.getCreateTime();
-                if (consumerTime.isAfter(LocalDateTime.now())){
-                    log.info("订单超时，订单号：{}", orderNo);
-                    redisUtil.updateComPayNum(comKafka.getComId(), comKafka.getNum());
-                    ORDER_MAP.remove(orderNo);
-                }else {
-                    log.info("订单未超时，库存不回滚，订单号：{}", orderNo);
+                for (ComKafka comKafka : comKafkaList) {
+                    System.out.println(comKafka);
+                    LocalDateTime consumerTime = comKafka.getCreateTime();
+                    if (consumerTime.isAfter(LocalDateTime.now())){
+                        log.info("订单超时，订单号：{}", orderNo);
+                        redisUtil.updateComPayNum(comKafka.getComId(), comKafka.getNum());
+                        ORDER_MAP.remove(orderNo);
+                    }else {
+                        log.info("订单未超时，库存不回滚，订单号：{}", orderNo);
+                    }
                 }
             }
         } catch (InterruptedException e) {

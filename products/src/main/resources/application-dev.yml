@@ -15,7 +15,7 @@ cloud:
 
 pay:
   maxTime: 10
-  consumerTime: 15
+  consumerTime: 5
 
 xxl:
   job:
