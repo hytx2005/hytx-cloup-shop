@@ -1,6 +1,7 @@
 package com.chenzhihao.products.other.xxl;
 
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
+import com.chenzhihao.products.other.util.KafkaSendUtil;
 import com.chenzhihao.products.other.util.RedisUtil;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
@@ -44,5 +45,23 @@ public class ProductXxlJob {
             }
         }
         log.info("数据更新完毕");
+    }
+
+
+    @Autowired
+    KafkaSendUtil kafkaSendUtil;
+
+    @XxlJob("updateKafka")
+    public void updateKafka() {
+        // 分片参数
+        int index = XxlJobHelper.getShardIndex();
+        int total = XxlJobHelper.getShardTotal();
+        log.info("准备更新kafka数据至redis");
+        for (String s : KafkaSendUtil.ORDER_MAP.keySet()) {
+            int hashCode = s.charAt(0);
+            if (hashCode % total == index){
+                kafkaSendUtil.updateRedisFromKafka(s);
+            }
+        }
     }
 }

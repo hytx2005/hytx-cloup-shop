@@ -7,6 +7,7 @@ import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
 import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Data
+@Slf4j
 public class RedisUtil {
 
 
@@ -210,5 +212,41 @@ public class RedisUtil {
             }
         }
 
+    }
+
+
+    /**
+     * 订单未支付，回滚商品的锁定库存
+     * @param comId 商品id
+     * @param dec 需要回滚的数量
+     */
+    public void updateComPayNum(Long comId,Integer dec){
+        String lockKey = LOCK_KEY + comId;
+        RLock lock = redisson.getLock(lockKey);
+        try {
+            // 尝试获取锁，等待 10 秒，锁自动释放时间为 30 秒
+            if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+                RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
+                CommodityRedisVo vo = map.get(comId);
+                log.info("回滚商品库存，商品为{}，回滚数量为{}",vo,dec);
+                if (vo == null){
+                    return;
+                }
+                Integer payNum = vo.getPayNum();
+                payNum -= dec;
+                vo.setPayNum(payNum);
+                map.put(comId, vo);
+
+                RMap<Long, CommodityRedisVo> map1 = redisson.getMap(COMMODITY_HASH_KEY);
+                CommodityRedisVo vo1 = map1.get(comId);
+                log.info("回滚后商品数据为: {}",vo1);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 }

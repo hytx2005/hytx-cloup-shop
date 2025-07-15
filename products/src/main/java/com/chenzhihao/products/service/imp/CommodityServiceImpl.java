@@ -8,6 +8,7 @@ import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.dto.PayDetail;
+import com.chenzhihao.products.domain.po.ComKafka;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
@@ -34,6 +35,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,9 +164,17 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         List<Long> ids = new ArrayList<>();
         for (PayDetail payDetail : comPayDto.getPayDetails()) {
             ids.add(payDetail.getCommodityId());
+            Long commodityId = payDetail.getCommodityId();
+            Integer num = payDetail.getNum();
+            ComKafka comKafka = ComKafka.builder()
+                    .orderNo(orderNo)
+                    .comId(commodityId)
+                    .num(num)
+                    .createTime(LocalDateTime.now())
+                    .build();
+            kafkaSendUtil.sendMessage(comKafka);
         }
         cartFacade.deleteCart(ids);
-        // TODO kafka服务
         ComPayVo comPayVo = new ComPayVo();
         comPayVo.setOrderNo(orderNo);
         return Result.success(comPayVo);
