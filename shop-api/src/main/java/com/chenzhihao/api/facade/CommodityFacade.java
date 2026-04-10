@@ -23,4 +23,12 @@ public interface CommodityFacade {
      * @return {@link List }<{@link CommodityPayVo }>
      */
     List<CommodityPayVo> getCommodityById(OrderCreDto orderDto);
+
+    /**
+     * 释放商品库存（用于订单取消或支付失败时）
+     * @param commodityId 商品id
+     * @param quantity 释放数量
+     * @return 是否成功
+     */
+    boolean releaseStock(Long commodityId, Integer quantity);
 }

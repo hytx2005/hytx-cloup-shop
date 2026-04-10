@@ -31,4 +31,11 @@ public interface CommodityMapper extends BaseMapper<Commodity> {
      * @return int
      */
     int batchUpdateSold(@Param("commodity") Commodity commodity);
+
+    /**
+     * 根据商品ID查询商品信息并加悲观锁
+     * @param id 商品ID
+     * @return 商品信息
+     */
+    Commodity selectCommodityForUpdate(@Param("id") Long id);
 }

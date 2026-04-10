@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
 import com.chenzhihao.shopcommon.util.UserContext;
+import com.chenzhihao.orders.util.DelayedQueueUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,8 +40,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @DubboReference
     private CartFacade cartFacade;
 
-
     private OrdersMapper ordersMapper;
+
+    @Autowired
+    private DelayedQueueUtil delayedQueueUtil;
+
     @Autowired
     public void setOrdersMapper(OrdersMapper ordersMapper) {
         this.ordersMapper = ordersMapper;
@@ -83,13 +87,19 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                     .commodityNum(num)
                     .commodityUrl(vo.getImageUrl())
                     .money(money)
-                    .payStatus("未支付")
+                    .payStatus("PENDING")
+                    .createTime(new java.util.Date())
+                    .updateTime(new java.util.Date())
                     .build();
             ordersMapper.insert(orders);
         }
 
         // 3.去购物车中删除对应数据
         cartFacade.deleteCart(ids);
+
+        // 4.将订单添加到延迟队列（15分钟后超时取消）
+        delayedQueueUtil.addOrderToTimeoutQueue(orderNo);
+
         return orderNo;
     }
 

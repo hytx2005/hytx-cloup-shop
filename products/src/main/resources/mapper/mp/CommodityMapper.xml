@@ -21,6 +21,13 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+        FOR UPDATE
+    </select>
+
+    <select id="selectCommodityForUpdate" resultMap="CommodityResultMap">
+        SELECT * FROM commodity
+        WHERE id = #{id}
+        FOR UPDATE
     </select>
 
     <update id="batchUpdateSold">

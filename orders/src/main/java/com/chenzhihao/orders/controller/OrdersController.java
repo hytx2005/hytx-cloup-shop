@@ -31,14 +31,14 @@ public class OrdersController {
     }
 
     /**
-     * 生成订单号
+     * 创建订单（生成订单号）
      *    1.扣减商品数量
      *    2.生成订单表数据
      *    3.去购物车中删除对应数据
      * @param orderCreDto 订单信息
      * @return {@link Result }<{@link String }
      */
-    @GetMapping("/pay")
+    @PostMapping("/create")
     @DubboException(message = "商品库存不足")
     public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
         String order = ordersService.createOrder(orderCreDto);

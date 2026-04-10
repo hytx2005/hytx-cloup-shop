@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>tet</title>
+</head>
+<body>
+<form name="punchout_form" method="post"
+      action="https://openapi-sandbox.dl.alipaydev.com/gateway.do https://openapi-sandbox.dl.alipaydev.com/gateway.do?charset=utf-8&method=alipay.trade.page.pay&sign=ZXGw9yLn2SuA8sVXYvHAO28ugXl6hsveJol5LV%2Funj0yMry%2BYX8I91e7ugMq%2BK7Htz4i8IgO5%2F46Q8G4OkZ0RaGM8h8kABPTF5RCWkKDSnmIikcLMSQ9CaAErnN1xnnyUPth1RqF1LdeLn8peKPYJ5ISd0IAnRocobAp%2FxQLZCdrAHtXsZIeg64j7haNyl%2Fd6Ef%2FIPvVVueifbvGit4zKgYT611JHcZOppyF3P%2FtbsOh8m4iAfPRiDMoBuXRvTxz8PaZ7kxtGNllFKtAv7bcxGODgmQytPLar5T%2BE7TQeSZ4E7NoNdCnmMX%2BeMdQHmyQ4OvhHh8SSjTHjOqhNeuo9A%3D%3D&version=1.0&app_id=9021000142611854&sign_type=RSA2&timestamp=2025-07-17+16%3A28%3A50&alipay_sdk=alipay-sdk-java-4.39.194.ALL&format=json">
+    <input type="hidden" name="biz_content" value="{&quot;out_trade_no&quot;:&quot;1752740930165e670c3a33ba34349925555d0488663a6&quot;,&quot;product_code&quot;:&quot;FAST_INSTANT_TRADE_PAY&quot;,&quot;subject&quot;:&quot;测试订单&quot;,&quot;total_amount&quot;:&quot;99&quot;}">
+    <input type="submit" value="立即支付" style="display:none" >
+</form>
+<script>
+    document.forms[0].submit();
+</script>
+</body>
+</html>

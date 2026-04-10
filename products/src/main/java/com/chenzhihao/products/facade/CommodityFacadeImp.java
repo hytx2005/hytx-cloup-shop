@@ -60,8 +60,8 @@ public class CommodityFacadeImp implements CommodityFacade {
         }
             // 商品按id排序
         Collections.sort(commodityIds);
-        
-        
+
+
         // 2.使用悲观锁查询商品信息
         List<Commodity> commodities = commodityMapper.selectCommoditiesForUpdate(commodityIds);
 
@@ -95,6 +95,35 @@ public class CommodityFacadeImp implements CommodityFacade {
             commodityMapper.batchUpdateSold(commodity);
         }
         return result;
+    }
+
+    /**
+     * 释放商品库存（用于订单取消或支付失败时）
+     * @param commodityId 商品id
+     * @param quantity 释放数量
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean releaseStock(Long commodityId, Integer quantity) {
+        if (commodityId == null || quantity == null || quantity <= 0) {
+            return false;
+        }
+
+        // 使用悲观锁查询商品
+        Commodity commodity = commodityMapper.selectCommodityForUpdate(commodityId);
+        if (commodity == null) {
+            return false;
+        }
+
+        // 释放库存：已售数量减少
+        if (commodity.getSold() >= quantity) {
+            commodity.setSold(commodity.getSold() - quantity);
+            commodityMapper.batchUpdateSold(commodity);
+            return true;
+        }
+
+        return false;
     }
 
 
