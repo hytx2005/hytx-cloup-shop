@@ -49,12 +49,8 @@ public class DelayedQueueUtil {
     @PreDestroy
     public void destroy() {
         running = false;
-        if (delayedQueue != null) {
-            delayedQueue.destroy();
-        }
-        if (orderTimeoutQueue != null) {
-            orderTimeoutQueue.destroy();
-        }
+        // Redisson queues are managed by Redisson client
+        // No need to manually destroy them
     }
 
     /**
