@@ -1,14 +1,14 @@
 cs:
   db:
-    host: ${DB_HOST:117.72.124.24}
-    name: ${DB_NAME:summer}
-    user: ${DB_USER:summer}
-    pwd: ${DB_PASSWORD:summer}
+    host: 117.72.124.24
+    name: summer
+    user: summer
+    pwd: summer
 
 dubbo:
   registry:
-    namespace: ${DUBBO_REGISTRY_NAMESPACE:hqh}
+    namespace: dhx
 
 cloud:
   nacos:
-    namespace: ${NACOS_NAMESPACE:hqh}
+    namespace: dhx

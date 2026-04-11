@@ -1,9 +1,16 @@
 package com.chenzhihao.products.service.imp;
 
 
+import com.chenzhihao.api.dto.OrderForPay;
+import com.chenzhihao.api.facade.CartFacade;
+import com.chenzhihao.api.facade.OrderFacade;
 import com.chenzhihao.products.domain.doc.CommodityEsDoc;
+import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
+import com.chenzhihao.products.domain.dto.PayDetail;
+import com.chenzhihao.products.domain.po.ComKafka;
 import com.chenzhihao.products.domain.po.Commodity;
+import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
 import com.chenzhihao.products.other.util.KafkaSendUtil;
 import com.chenzhihao.products.other.util.RedisUtil;
@@ -12,8 +19,13 @@ import com.chenzhihao.products.mapper.es.CommodityEsMapper;
 import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import com.chenzhihao.products.service.ICommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
+import com.chenzhihao.shopcommon.result.Result;
+import com.chenzhihao.shopcommon.util.OrderNoUtil;
+import com.chenzhihao.shopcommon.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.dromara.easyes.core.biz.EsPageInfo;
@@ -22,12 +34,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * <p>
  * 商品模块 服务实现类
- * </p>
- *
  * @author hqh
  * @since 2025-06-27
  */
@@ -41,6 +54,10 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     private CommodityMapper commodityMapper;
     @Autowired
     private KafkaSendUtil kafkaSendUtil;
+    @DubboReference
+    private OrderFacade orderFacade;
+    @DubboReference
+    private CartFacade cartFacade;
 
 
     /**
@@ -73,14 +90,15 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         commodityVo = CommodityRedisVo.builder().build();
         BeanUtils.copyProperties(commodity, commodityVo);
         commodityVo.setPayNum(0);
+        commodityVo.setVersion(0);
         return commodityVo;
     }
 
     @Resource
     private CommodityEsMapper commodityEsMapper;
 
-        @Override
-        public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
+    @Override
+    public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
             // 1. 创建查询条件构造器
             LambdaEsQueryWrapper<CommodityEsDoc> wrapper = new LambdaEsQueryWrapper<>();
 
@@ -118,4 +136,72 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         }
 
 
+    /**
+     * 创建支付订单
+     * @param comPayDto 商品信息
+     * @return {@link Result }<{@link ComPayVo }>
+     */
+    @Override
+    @DubboException
+    public Result<ComPayVo> crePay(ComPayDto comPayDto) {
+
+        // 1.从redis中获取商品信息，调用service层接口，保证商品信息已经存储在redis
+        List<OrderForPay> forRedis = getComForRedis(comPayDto.getPayDetails());
+        // 2.去redis校验商品库存是否足够
+        boolean b = redisUtil.batchCheckCom(comPayDto.getPayDetails());
+        if (!b) {
+            throw  new BaseException("商品库存不足");
+        }
+
+        // 3.生成订单号
+        String orderNo = OrderNoUtil.generateOrderNo();
+
+        // 4.调用订单dubbo服务，生成订单数据
+        orderFacade.createOrder(forRedis,orderNo);
+
+
+        // 5.调用购物车服务，删除数据
+        List<Long> ids = new ArrayList<>();
+        for (PayDetail payDetail : comPayDto.getPayDetails()) {
+            ids.add(payDetail.getCommodityId());
+            Long commodityId = payDetail.getCommodityId();
+            Integer num = payDetail.getNum();
+            ComKafka comKafka = ComKafka.builder()
+                    .orderNo(orderNo)
+                    .comId(commodityId)
+                    .num(num)
+                    .createTime(LocalDateTime.now())
+                    .build();
+            kafkaSendUtil.sendMessage(comKafka);
+        }
+        cartFacade.deleteCart(ids);
+        ComPayVo comPayVo = new ComPayVo();
+        comPayVo.setOrderNo(orderNo);
+        return Result.success(comPayVo);
     }
+
+
+    /**
+     *  获取对应商品信息，保证商品信息存储在redis中
+     * @param details 商品信息
+     * @return {@link List }<{@link OrderForPay }>
+     */
+    @Override
+    public List<OrderForPay> getComForRedis(List<PayDetail> details) {
+        List<OrderForPay> result = new ArrayList<>();
+        for (PayDetail detail : details) {
+            CommodityRedisVo commodity = getCommodityFromCache(detail.getCommodityId());
+            OrderForPay orderForPay = OrderForPay.builder()
+                    .id(commodity.getId())
+                    .price(commodity.getPrice())
+                    .name(commodity.getName())
+                    .imageUrl(commodity.getImageUrl())
+                    .num(detail.getNum())
+                    .build();
+            result.add(orderForPay);
+        }
+        return result;
+    }
+
+
+}

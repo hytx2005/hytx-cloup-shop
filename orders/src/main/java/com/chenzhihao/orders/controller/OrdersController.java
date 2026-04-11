@@ -2,7 +2,6 @@ package com.chenzhihao.orders.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chenzhihao.api.dto.OrderCreDto;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.service.IOrdersService;
@@ -30,20 +29,7 @@ public class OrdersController {
         this.ordersService = ordersService;
     }
 
-    /**
-     * 创建订单（生成订单号）
-     *    1.扣减商品数量
-     *    2.生成订单表数据
-     *    3.去购物车中删除对应数据
-     * @param orderCreDto 订单信息
-     * @return {@link Result }<{@link String }
-     */
-    @PostMapping("/create")
-    @DubboException(message = "商品库存不足")
-    public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
-        String order = ordersService.createOrder(orderCreDto);
-        return Result.success(order);
-    }
+
 
 
     /**

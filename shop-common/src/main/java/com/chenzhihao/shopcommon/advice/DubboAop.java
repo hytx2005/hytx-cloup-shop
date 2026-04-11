@@ -34,15 +34,17 @@ public class DubboAop {
             if (dubboServiceAop != null) {
                 // 获取 message 属性值
                 String message = dubboServiceAop.message();
-                if (message.isEmpty()){
+                if (!message.isEmpty()){
                     return Result.error(message);
                 }
-                return Result.error(message);
+                return Result.error(e.getMessage());
+            }
+            else {
+                return Result.error(e.getMessage());
             }
         }
         catch (Throwable e){
             return Result.error(e.getMessage());
         }
-        return null;
     }
 }

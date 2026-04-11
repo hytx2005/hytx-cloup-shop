@@ -25,7 +25,7 @@ spring:
 
 # kafka相关配置
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:122.51.149.223:9092}
+    bootstrap-servers: 122.51.149.223:9092
     producer:
       retries: 3 #设置大于0，会将发送失败的记录重新发送
       batch-size: 16384
@@ -46,12 +46,12 @@ spring:
       ack-mode: manual_immediate
 
   redis:
-    host: ${REDIS_HOST:117.72.124.24}
-    port: ${REDIS_PORT:6379}
-    database: ${REDIS_DATABASE:0}
+    host: 121.43.197.241
+    port: 16379
+    database: 0
 # dubbo + nacos 服务注册发现
 nacos:
-  address: ${NACOS_ADDRESS:121.43.197.241:8848}
+  address: 121.43.197.241:8848
   #  117.72.124.24:8849
 dubbo:
   protocol:
@@ -60,23 +60,11 @@ dubbo:
     check: false
   registry:
     address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
-    register-mode: instance
+    register-mode: application
   application:
     qos-enable: off
     name: ${spring.application.name}-dubbo
 
-#xxl-job
-xxl:
-  job:
-    admin:
-      addresses: ${xxl.job.admin.addresses}
-    accessToken: ${xxl.job.accessToken}
-    executor:
-      appname: commodity-xxl-job
-      ip: 127.0.0.1
-      port: 9999
-      logpath: /data/applogs/xxl-job/jobhandler
-      logretentiondays: 30
 
 
 mybatis-plus:
@@ -91,7 +79,7 @@ mybatis-plus:
 easy-es:
   compatible: true # 兼容模式开关,默认为false,若您的es客户端版本小于8.x,务必设置为true才可正常使用,8.x及以上则可忽略此项配置
   enable: true #默认为true,若为false则认为不启用本框架
-  address : ${ES_ADDRESS:117.72.116.151:9200} # es的连接地址,必须含端口 若为集群,则可以用逗号隔开 例如:127.0.0.1:9200,127.0.0.2:9200
+  address : 117.72.116.151:9200 # es的连接地址,必须含端口 若为集群,则可以用逗号隔开 例如:127.0.0.1:9200,127.0.0.2:9200
 
 
 logging:

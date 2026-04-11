@@ -1,19 +1,19 @@
-package com.chenzhihao.api.dto;
+package com.chenzhihao.products.domain.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 单个订单详情表
  * @author dhx
  */
 @Data
-public class OrderDetailDto implements Serializable {
+@NoArgsConstructor
+public class PayDetail implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
 
     /**
      * 商品id
@@ -21,7 +21,9 @@ public class OrderDetailDto implements Serializable {
     private Long commodityId;
 
     /**
-     * 商品数量
+     * 购买数量
      */
     private Integer num;
+
+
 }

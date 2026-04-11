@@ -1,20 +1,19 @@
-package com.chenzhihao.api.vo;
+package com.chenzhihao.api.dto;
+
+import lombok.Builder;
+import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import lombok.Builder;
-import lombok.Data;
-
 /**
- * 下单后返回商品信息
- *
+ * 订单信息 - 根据提供的商品信息生成预支付订单
  * @author dhx
  */
 @Data
 @Builder
-public class CommodityPayVo implements Serializable {
+public class OrderForPay implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -34,4 +33,9 @@ public class CommodityPayVo implements Serializable {
      * 商品图片链接
      */
     private String imageUrl;
+
+    /**
+     * 商品数量
+     */
+    private Integer num;
 }
