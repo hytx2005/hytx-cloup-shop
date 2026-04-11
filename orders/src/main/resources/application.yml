@@ -24,7 +24,7 @@ spring:
 
   # kafka相关配置
   kafka:
-    bootstrap-servers: 122.51.149.223:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:122.51.149.223:9092}
     producer:
       retries: 3 #设置大于0，会将发送失败的记录重新发送
       batch-size: 16384
@@ -46,7 +46,7 @@ spring:
 
 # dubbo + nacos 服务注册发现
 nacos:
-    address: 121.43.197.241:8848
+    address: ${NACOS_ADDRESS:121.43.197.241:8848}
       #  117.72.124.24:8849
 dubbo:
   provider:

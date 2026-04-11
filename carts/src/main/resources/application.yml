@@ -24,13 +24,13 @@ spring:
 
 
   redis:
-    host: 117.72.124.24
-    port: 6379
-    database: 0
+    host: ${REDIS_HOST:117.72.124.24}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DATABASE:0}
 
 # dubbo + nacos 服务注册发现
 nacos:
-  address: 121.43.197.241:8848
+  address: ${NACOS_ADDRESS:121.43.197.241:8848}
   #  117.72.124.24:8849
 dubbo:
   protocol:

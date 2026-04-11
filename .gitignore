@@ -10,3 +10,6 @@ Thumbs.db
 *.iml
 *.ipr
 *.iws
+.env
+.env.local
+.env.*

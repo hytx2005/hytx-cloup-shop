@@ -44,13 +44,13 @@ spring:
 
 # dubbo + nacos 服务注册发现
 nacos:
-  address: 121.43.197.241:8848
+  address: ${NACOS_ADDRESS:121.43.197.241:8848}
   #  117.72.124.24:8849
 
 #jwt相关配置
 jwt:
   # 设置jwt签名加密时使用的秘钥
-  secret-key: cloud_shopdh21hadxy812yhdahd1r31
+  secret-key: ${JWT_SECRET_KEY:cloud_shopdh21hadxy812yhdahd1r31}
   # 设置jwt过期时间
   user-ttl: 604800000
   # 设置前端传递过来的令牌名称

@@ -1,20 +1,20 @@
 cs:
   db:
-    host: 117.72.124.24
-    name: summer
-    user: summer
-    pwd: summer
+    host: ${DB_HOST:117.72.124.24}
+    name: ${DB_NAME:summer}
+    user: ${DB_USER:summer}
+    pwd: ${DB_PASSWORD:summer}
 
 dubbo:
   registry:
-    namespace: hqh
+    namespace: ${DUBBO_REGISTRY_NAMESPACE:hqh}
 
 cloud:
   nacos:
-    namespace: hqh
+    namespace: ${NACOS_NAMESPACE:hqh}
 
 xxl:
   job:
     admin:
-      accessToken: default_token
-      addresses: http://127.0.0.1:8088/xxl-job-admin
+      accessToken: ${XXL_JOB_ACCESS_TOKEN:default_token}
+      addresses: ${XXL_JOB_ADMIN_ADDRESSES:http://127.0.0.1:8088/xxl-job-admin}
