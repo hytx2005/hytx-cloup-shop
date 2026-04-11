@@ -1,9 +1,8 @@
 package com.chenzhihao.orders.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chenzhihao.api.facade.CartFacade;
-import com.chenzhihao.api.facade.CommodityFacade;
-import com.chenzhihao.api.vo.CommodityPayVo;
+import com.chenzhihao.orders.client.CartClient;
+import com.chenzhihao.orders.client.CommodityClient;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
@@ -12,7 +11,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
 import com.chenzhihao.shopcommon.util.UserContext;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -32,10 +30,10 @@ import java.util.Map;
 @Service
 public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements IOrdersService {
 
-    @DubboReference
-    private CommodityFacade commodityFacade;
-    @DubboReference
-    private CartFacade cartFacade;
+    @Autowired
+    private CommodityClient commodityClient;
+    @Autowired
+    private CartClient cartClient;
 
 
     private OrdersMapper ordersMapper;

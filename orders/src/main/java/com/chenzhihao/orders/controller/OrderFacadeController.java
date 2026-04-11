@@ -1,49 +1,50 @@
-package com.chenzhihao.orders.facade;
+package com.chenzhihao.orders.controller;
 
 import com.chenzhihao.api.dto.OrderForPay;
-import com.chenzhihao.api.facade.OrderFacade;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.UserContext;
-import org.apache.dubbo.config.annotation.DubboService;
+import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 订单模块提供的dubbo服务
+ * Order Facade REST API (replaces Dubbo OrderFacadeImp)
  * @author dhx
  */
-@DubboService
-@Component
-public class OrderFacadeImp implements OrderFacade {
+@RestController
+@RequestMapping("/api/internal/orders")
+public class OrderFacadeController {
 
     private OrdersMapper ordersMapper;
+
     @Autowired
     public void setOrdersMapper(OrdersMapper ordersMapper) {
         this.ordersMapper = ordersMapper;
     }
 
     /**
-     * 根据商品信息和订单号生成预支付订单
+     * 根据商品信息和订单号生成预支付订单 (Dubbo createOrder equivalent)
      * @param pays    商品信息集合
      * @param orderNo 订单号
      */
-    @Override
-    public void createOrder(List<OrderForPay> pays,String orderNo) {
+    @PostMapping("/create")
+    public Result<Void> createOrder(@RequestBody CreateOrderRequest request) {
         Long userId = UserContext.getUserId();
-        if (userId == null){
+        if (userId == null) {
             throw new BaseException("获取用户数据失败");
         }
+
         // 2.生成订单表数据
-        for (OrderForPay vo : pays) {
+        for (OrderForPay vo : request.getPays()) {
             BigDecimal money = vo.getPrice().multiply(new BigDecimal(vo.getNum()));
             Orders orders = Orders.builder()
                     .userId(userId)
-                    .orderNo(orderNo)
+                    .orderNo(request.getOrderNo())
                     .commodityId(vo.getId())
                     .commodityName(vo.getName())
                     .commodityNum(vo.getNum())
@@ -52,6 +53,30 @@ public class OrderFacadeImp implements OrderFacade {
                     .payStatus("未支付")
                     .build();
             ordersMapper.insert(orders);
+        }
+
+        return Result.success();
+    }
+
+    public static class CreateOrderRequest {
+        private List<OrderForPay> pays;
+        private String orderNo;
+
+        // Getters and setters
+        public List<OrderForPay> getPays() {
+            return pays;
+        }
+
+        public void setPays(List<OrderForPay> pays) {
+            this.pays = pays;
+        }
+
+        public String getOrderNo() {
+            return orderNo;
+        }
+
+        public void setOrderNo(String orderNo) {
+            this.orderNo = orderNo;
         }
     }
 }

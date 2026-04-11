@@ -48,21 +48,15 @@ spring:
 
 
 
-# dubbo + nacos 服务注册发现
-nacos:
-    address: ${NACOS_ADDRESS:121.43.197.241:8848}
-    #  117.72.124.24:8849
-dubbo:
-  protocol:
-    port: -1
-  consumer:
-    check: false
-  registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.nacos.namespace}
-    register-mode: application
-  application:
-    qos-enable: off
-    name: ${spring.application.name}-dubbo
+# OpenFeign configuration
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
 
 
 mybatis-plus:

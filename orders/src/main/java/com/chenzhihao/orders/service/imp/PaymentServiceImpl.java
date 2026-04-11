@@ -2,7 +2,7 @@ package com.chenzhihao.orders.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chenzhihao.api.facade.CommodityFacade;
+import com.chenzhihao.orders.client.CommodityClient;
 import com.chenzhihao.orders.domain.dto.PaymentCallbackDto;
 import com.chenzhihao.orders.domain.dto.PaymentRequestDto;
 import com.chenzhihao.orders.domain.po.Orders;
@@ -12,7 +12,6 @@ import com.chenzhihao.orders.service.IPaymentService;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
 import com.chenzhihao.orders.util.DelayedQueueUtil;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +32,8 @@ public class PaymentServiceImpl implements IPaymentService {
     @Autowired
     private OrdersMapper ordersMapper;
 
-    @DubboReference
-    private CommodityFacade commodityFacade;
+    @Autowired
+    private CommodityClient commodityClient;
 
     @Autowired
     private DelayedQueueUtil delayedQueueUtil;
@@ -221,7 +220,10 @@ public class PaymentServiceImpl implements IPaymentService {
 
         // 为每个商品释放库存
         for (Orders order : orders) {
-            commodityFacade.releaseStock(order.getCommodityId(), order.getCommodityNum());
+            CommodityClient.ReleaseStockRequest request = new CommodityClient.ReleaseStockRequest();
+            request.setCommodityId(order.getCommodityId());
+            request.setQuantity(order.getCommodityNum());
+            commodityClient.releaseStock(request);
         }
     }
 

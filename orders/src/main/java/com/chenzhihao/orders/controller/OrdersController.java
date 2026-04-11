@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.service.IOrdersService;
-import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;

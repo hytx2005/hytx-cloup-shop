@@ -1,17 +1,17 @@
 package com.chenzhihao.orders;
 
 import org.mybatis.spring.annotation.MapperScan;
-import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @MapperScan("com.chenzhihao.orders.mapper")
 @SpringBootApplication
-@EnableDubbo
 @EnableDiscoveryClient
+@EnableFeignClients(basePackages = "com.chenzhihao.orders.client")
 @ComponentScan(basePackages = {
         "com.chenzhihao.orders",
         "com.chenzhihao.shopcommon"

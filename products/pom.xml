@@ -61,10 +61,10 @@
         </dependency>
 
 
-        <!--dubbo+nacos-->
+        <!-- OpenFeign for REST client communication -->
         <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
 
