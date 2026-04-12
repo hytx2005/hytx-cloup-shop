@@ -1,7 +1,6 @@
 package com.chenzhihao.products.service;
 
 import com.chenzhihao.api.dto.OrderForPay;
-import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.dto.PayDetail;
@@ -9,6 +8,7 @@ import com.chenzhihao.products.domain.po.Commodity;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
+import com.chenzhihao.products.domain.vo.CommoditySearchVo;
 import com.chenzhihao.products.domain.vo.PageResult;
 import com.chenzhihao.shopcommon.result.Result;
 
@@ -33,7 +33,7 @@ public interface ICommodityService extends IService<Commodity> {
 
 
 
-    PageResult<CommodityEsDoc> search(CommodityQueryDTO dto);
+    PageResult<CommoditySearchVo> search(CommodityQueryDTO dto);
 
     /**
      * 根据商品信息生成订单

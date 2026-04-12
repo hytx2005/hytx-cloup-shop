@@ -18,27 +18,6 @@ spring:
   profiles:
     active: dev # 激活开发环境配置
 
-  # kafka相关配置
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:122.51.149.223:9092}
-    producer:
-      retries: 3 #设置大于0，会将发送失败的记录重新发送
-      batch-size: 16384
-      buffer-memory: 33554432
-      acks: 1
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-    consumer:
-      group-id: default-group
-      enable-auto-commit: false
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      max-poll-records: 500
-
-    listener:
-      ack-mode: manual_immediate
   # 数据库连接池配置
   datasource:
     url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai

@@ -2,34 +2,29 @@ package com.chenzhihao.products.service.imp;
 
 
 import com.chenzhihao.api.dto.OrderForPay;
-import com.chenzhihao.api.facade.CartFacade;
-import com.chenzhihao.api.facade.OrderFacade;
-import com.chenzhihao.products.domain.doc.CommodityEsDoc;
+import com.chenzhihao.api.client.CartClient;
+import com.chenzhihao.api.client.OrderClient;
 import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.dto.PayDetail;
-import com.chenzhihao.products.domain.po.ComKafka;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
-import com.chenzhihao.products.other.util.KafkaSendUtil;
 import com.chenzhihao.products.other.util.RedisUtil;
+import com.chenzhihao.products.other.util.OrderTimeoutUtil;
 import com.chenzhihao.products.domain.vo.PageResult;
-import com.chenzhihao.products.mapper.es.CommodityEsMapper;
+import com.chenzhihao.products.domain.vo.CommoditySearchVo;
+import com.chenzhihao.products.mapper.mp.CommoditySearchMapper;
 import com.chenzhihao.products.mapper.mp.CommodityMapper;
 import com.chenzhihao.products.service.ICommodityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
 import com.chenzhihao.shopcommon.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.dromara.easyes.core.biz.EsPageInfo;
-import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -40,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 商品模块 服务实现类
+ * 商品模块服务实现类
  * @author hqh
  * @since 2025-06-27
  */
@@ -53,18 +48,16 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     @Autowired
     private CommodityMapper commodityMapper;
     @Autowired
-    private KafkaSendUtil kafkaSendUtil;
-    @DubboReference
-    private OrderFacade orderFacade;
-    @DubboReference
-    private CartFacade cartFacade;
+    private OrderClient orderClient;
+    @Autowired
+    private CartClient cartClient;
 
 
     /**
-     * 旁路缓存策略 - 用商品id获取商品信息
-     * 未获取到商品信息时，使用kafka消息队列来推送商品信息到redis中
-     * @param id 商品id
-     * @return {@link CommodityRedisVo }
+     * 旁路缓存策略 - 根据商品ID获取商品信息
+     * 未获取到商品信息时，直接同步保存到Redis中
+     * @param id 商品ID
+     * @return 商品信息VO
      */
     @Override
     public CommodityRedisVo getCommodityFromCache(Long id) {
@@ -79,14 +72,14 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         // 缓存未命中，从数据库中查找商品信息
         Commodity commodity = commodityMapper.selectById(id);
 
-        // 查找到商品信息，推送到消息队列
-        if (commodity!= null) {
-            kafkaSendUtil.addCommodityToRedis(commodity);
-        }
         // 商品不存在
-        else {
+        if (commodity == null) {
             throw new BaseException("商品信息不存在");
         }
+
+        // 查找到商品信息，直接同步保存到Redis
+        redisUtil.saveCommodity(commodity);
+
         commodityVo = CommodityRedisVo.builder().build();
         BeanUtils.copyProperties(commodity, commodityVo);
         commodityVo.setPayNum(0);
@@ -94,55 +87,51 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         return commodityVo;
     }
 
-    @Resource
-    private CommodityEsMapper commodityEsMapper;
+    @Autowired
+    private CommoditySearchMapper commoditySearchMapper;
 
     @Override
-    public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
-            // 1. 创建查询条件构造器
-            LambdaEsQueryWrapper<CommodityEsDoc> wrapper = new LambdaEsQueryWrapper<>();
+    public PageResult<CommoditySearchVo> search(CommodityQueryDTO queryDTO) {
+        // 计算分页偏移量
+        int offset = (queryDTO.getPageNum() - 1) * queryDTO.getPageSize();
+        int pageSize = queryDTO.getPageSize();
 
-            // 2. 构建关键词查询
-            if (StringUtils.hasText(queryDTO.getKeyword())) {
-                wrapper.and(i -> i.match(CommodityEsDoc::getName, queryDTO.getKeyword())
-                        .or()
-                        .match(CommodityEsDoc::getSpec, queryDTO.getKeyword()));
-            }
+        // 执行搜索查询
+        List<CommoditySearchVo> searchResults = commoditySearchMapper.searchCommodities(
+                queryDTO.getKeyword(),
+                queryDTO.getMinPrice(),
+                queryDTO.getMaxPrice(),
+                queryDTO.getSortField(),
+                queryDTO.getSortOrder(),
+                offset,
+                pageSize
+        );
 
-            // 3. 构建价格范围查询
-            if (queryDTO.getMinPrice() != null) {
-                wrapper.ge(CommodityEsDoc::getPrice, queryDTO.getMinPrice());
-            }
-            if (queryDTO.getMaxPrice() != null) {
-                wrapper.le(CommodityEsDoc::getPrice, queryDTO.getMaxPrice());
-            }
+        // 统计总数
+        int total = commoditySearchMapper.countSearchResults(
+                queryDTO.getKeyword(),
+                queryDTO.getMinPrice(),
+                queryDTO.getMaxPrice()
+        );
 
-            // 4. 构建动态排序
-            if (StringUtils.hasText(queryDTO.getSortField())) {
-                boolean isAsc = "asc".equalsIgnoreCase(queryDTO.getSortOrder());
-                if ("price".equals(queryDTO.getSortField())) {
-                    wrapper.orderBy(true, isAsc, CommodityEsDoc::getPrice);
-                } else if ("sold".equals(queryDTO.getSortField())) {
-                    wrapper.orderBy(true, isAsc, CommodityEsDoc::getSold);
-                }
-            }
+        // 构建分页结果
+        PageResult<CommoditySearchVo> pageResult = new PageResult<>();
+        pageResult.setRecords(searchResults);
+        pageResult.setTotal((long) total);
+        pageResult.setPageSize(pageSize);
+        pageResult.setPageNum(queryDTO.getPageNum());
+        pageResult.setPages((int) Math.ceil((double) total / pageSize));
 
-            // 5. 执行分页查询, 返回结果
-            EsPageInfo<CommodityEsDoc> esPageInfo = commodityEsMapper.pageQuery(
-                    wrapper, queryDTO.getPageNum(), queryDTO.getPageSize());
-
-            // 6. 转换为统一的返回格式
-            return PageResult.of(esPageInfo);
-        }
+        return pageResult;
+    }
 
 
     /**
      * 创建支付订单
-     * @param comPayDto 商品信息
-     * @return {@link Result }<{@link ComPayVo }>
+     * @param comPayDto 商品支付信息
+     * @return 支付订单结果
      */
     @Override
-    @DubboException
     public Result<ComPayVo> crePay(ComPayDto comPayDto) {
 
         // 1.从redis中获取商品信息，调用service层接口，保证商品信息已经存储在redis
@@ -156,9 +145,11 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
         // 3.生成订单号
         String orderNo = OrderNoUtil.generateOrderNo();
 
-        // 4.调用订单dubbo服务，生成订单数据
-        orderFacade.createOrder(forRedis,orderNo);
-
+        // 4.调用订单服务，生成订单数据
+        OrderClient.CreateOrderRequest orderRequest = new OrderClient.CreateOrderRequest();
+        orderRequest.setOrderNo(orderNo);
+        orderRequest.setOrderItems(convertToOrderItems(forRedis));
+        orderClient.createOrder(orderRequest);
 
         // 5.调用购物车服务，删除数据
         List<Long> ids = new ArrayList<>();
@@ -166,15 +157,12 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
             ids.add(payDetail.getCommodityId());
             Long commodityId = payDetail.getCommodityId();
             Integer num = payDetail.getNum();
-            ComKafka comKafka = ComKafka.builder()
-                    .orderNo(orderNo)
-                    .comId(commodityId)
-                    .num(num)
-                    .createTime(LocalDateTime.now())
-                    .build();
-            kafkaSendUtil.sendMessage(comKafka);
+            // 将订单商品信息直接保存到内存中，供XXL-Job定时任务处理超时
+            OrderTimeoutUtil.addOrderItem(orderNo, commodityId, num);
         }
-        cartFacade.deleteCart(ids);
+        CartClient.DeleteCartRequest cartRequest = new CartClient.DeleteCartRequest();
+        cartRequest.setCommodityIds(ids);
+        cartClient.deleteCart(cartRequest);
         ComPayVo comPayVo = new ComPayVo();
         comPayVo.setOrderNo(orderNo);
         return Result.success(comPayVo);
@@ -182,9 +170,9 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
 
 
     /**
-     *  获取对应商品信息，保证商品信息存储在redis中
-     * @param details 商品信息
-     * @return {@link List }<{@link OrderForPay }>
+     * 获取对应商品信息，保证商品信息存储在Redis中
+     * @param details 商品支付详情
+     * @return OrderForPay列表
      */
     @Override
     public List<OrderForPay> getComForRedis(List<PayDetail> details) {
@@ -201,6 +189,25 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
             result.add(orderForPay);
         }
         return result;
+    }
+
+    /**
+     * 转换OrderForPay列表为OrderClient.OrderItem列表
+     * @param forRedis OrderForPay列表
+     * @return OrderClient.OrderItem列表
+     */
+    private java.util.List<OrderClient.OrderItem> convertToOrderItems(java.util.List<OrderForPay> forRedis) {
+        List<OrderClient.OrderItem> orderItems = new ArrayList<>();
+        for (OrderForPay orderForPay : forRedis) {
+            OrderClient.OrderItem item = new OrderClient.OrderItem();
+            item.setId(orderForPay.getId());
+            item.setName(orderForPay.getName());
+            item.setImageUrl(orderForPay.getImageUrl());
+            item.setNum(orderForPay.getNum());
+            item.setPrice(orderForPay.getPrice());
+            orderItems.add(item);
+        }
+        return orderItems;
     }
 
 

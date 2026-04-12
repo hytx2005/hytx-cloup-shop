@@ -1,8 +1,8 @@
 package com.chenzhihao.orders.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chenzhihao.orders.client.CartClient;
-import com.chenzhihao.orders.client.CommodityClient;
+import com.chenzhihao.api.client.CartClient;
+import com.chenzhihao.api.client.CommodityClient;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
@@ -20,9 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- * 订单模块 服务实现类
- * </p>
+ * 订单模块服务实现类
  *
  * @author hqh
  * @since 2025-06-27
@@ -43,9 +41,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     /**
-     * 根据订单id集合删除id
+     * 根据订单ID集合删除订单
      * @param dto 订单信息集合
-     * @return boolean
+     * @return 删除操作是否成功
      */
     @Override
     public boolean deleteOrders(OrderDelDto dto) {

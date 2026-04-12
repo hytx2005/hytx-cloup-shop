@@ -2,7 +2,7 @@ package com.chenzhihao.orders.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chenzhihao.orders.client.CommodityClient;
+import com.chenzhihao.api.client.CommodityClient;
 import com.chenzhihao.orders.domain.dto.PaymentCallbackDto;
 import com.chenzhihao.orders.domain.dto.PaymentRequestDto;
 import com.chenzhihao.orders.domain.po.Orders;
@@ -211,6 +211,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     /**
      * 释放库存
+     * @param orderNo 订单号
      */
     private void releaseInventory(String orderNo) {
         // 查询订单中的商品信息
@@ -229,6 +230,8 @@ public class PaymentServiceImpl implements IPaymentService {
 
     /**
      * 生成签名
+     * @param callbackDto 支付回调数据
+     * @return 生成的签名
      */
     private String generateSignature(PaymentCallbackDto callbackDto) {
         // 简单的签名生成逻辑，实际项目中应该使用更复杂的加密算法

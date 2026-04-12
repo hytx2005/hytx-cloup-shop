@@ -56,5 +56,3 @@ logging:
     com.example.products: DEBUG
     org.apache.dubbo: WARN
     com.alibaba.nacos: WARN
-    org.apache.kafka: WARN
-    org.apache.kafka.clients: WARN

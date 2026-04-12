@@ -13,7 +13,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Order Facade REST API (replaces Dubbo OrderFacadeImp)
+ * 订单服务REST API接口
+ * 替代原有的Dubbo OrderFacadeImp实现
  * @author dhx
  */
 @RestController
@@ -28,27 +29,28 @@ public class OrderFacadeController {
     }
 
     /**
-     * 根据商品信息和订单号生成预支付订单 (Dubbo createOrder equivalent)
-     * @param pays    商品信息集合
-     * @param orderNo 订单号
+     * 根据商品信息和订单号生成预支付订单
+     * 替代原有的Dubbo createOrder方法
+     * @param request 创建订单的请求对象
+     * @return 创建订单操作结果
      */
     @PostMapping("/create")
-    public Result<Void> createOrder(@RequestBody CreateOrderRequest request) {
+    public Result<Void> createOrder(@RequestBody com.chenzhihao.api.client.OrderClient.CreateOrderRequest request) {
         Long userId = UserContext.getUserId();
         if (userId == null) {
             throw new BaseException("获取用户数据失败");
         }
 
         // 2.生成订单表数据
-        for (OrderForPay vo : request.getPays()) {
-            BigDecimal money = vo.getPrice().multiply(new BigDecimal(vo.getNum()));
+        for (com.chenzhihao.api.client.OrderClient.OrderItem item : request.getOrderItems()) {
+            BigDecimal money = item.getPrice().multiply(new BigDecimal(item.getNum()));
             Orders orders = Orders.builder()
                     .userId(userId)
                     .orderNo(request.getOrderNo())
-                    .commodityId(vo.getId())
-                    .commodityName(vo.getName())
-                    .commodityNum(vo.getNum())
-                    .commodityUrl(vo.getImageUrl())
+                    .commodityId(item.getId())
+                    .commodityName(item.getName())
+                    .commodityNum(item.getNum())
+                    .commodityUrl(item.getImageUrl())
                     .money(money)
                     .payStatus("未支付")
                     .build();
@@ -58,25 +60,4 @@ public class OrderFacadeController {
         return Result.success();
     }
 
-    public static class CreateOrderRequest {
-        private List<OrderForPay> pays;
-        private String orderNo;
-
-        // Getters and setters
-        public List<OrderForPay> getPays() {
-            return pays;
-        }
-
-        public void setPays(List<OrderForPay> pays) {
-            this.pays = pays;
-        }
-
-        public String getOrderNo() {
-            return orderNo;
-        }
-
-        public void setOrderNo(String orderNo) {
-            this.orderNo = orderNo;
-        }
-    }
 }

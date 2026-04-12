@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenzhihao.products.mapper.mp.CommoditySearchMapper">
+
+    <resultMap id="CommoditySearchResult" type="com.chenzhihao.products.domain.vo.CommoditySearchVo">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="spec" column="spec"/>
+        <result property="sold" column="sold"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, price, image_url, spec, sold
+    </sql>
+
+    <sql id="Search_Where_Clause">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                name LIKE CONCAT('%', #{keyword}, '%')
+                OR spec LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="minPrice != null">
+                AND price >= #{minPrice}
+            </if>
+            <if test="maxPrice != null">
+                AND price &lt;= #{maxPrice}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 商品搜索查询 -->
+    <select id="searchCommodities" resultMap="CommoditySearchResult">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM commodity
+        <include refid="Search_Where_Clause"/>
+        <if test="sortField != null and sortField != '' and sortOrder != null and sortOrder != ''">
+            <choose>
+                <when test="sortField == 'price' and sortOrder == 'asc'">
+                    ORDER BY price ASC
+                </when>
+                <when test="sortField == 'price' and sortOrder == 'desc'">
+                    ORDER BY price DESC
+                </when>
+                <when test="sortField == 'sold' and sortOrder == 'asc'">
+                    ORDER BY sold ASC
+                </when>
+                <when test="sortField == 'sold' and sortOrder == 'desc'">
+                    ORDER BY sold DESC
+                </when>
+                <otherwise>
+                    ORDER BY id DESC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sortField == null or sortField == '' or sortOrder == null or sortOrder == ''">
+            ORDER BY id DESC
+        </if>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 搜索结果计数 -->
+    <select id="countSearchResults" resultType="int">
+        SELECT COUNT(*)
+        FROM commodity
+        <include refid="Search_Where_Clause"/>
+    </select>
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.chenzhihao.orders.client;
+package com.chenzhihao.api.client;
 
 import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -9,24 +9,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.List;
 
 /**
- * OpenFeign client for Cart Service (replaces @DubboReference CartFacade)
- * @author dhx
+ * 购物车服务OpenFeign客户端接口
+ * 用于其他服务调用购物车服务的功能
  */
 @FeignClient(name = "carts-service")
 public interface CartClient {
 
     /**
-     * Delete cart items (equivalent to CartFacade.deleteCart)
-     * @param request DeleteCartRequest containing commodity IDs
-     * @return Result<Boolean>
+     * 从购物车中删除商品
+     * @param request 包含要删除的商品ID列表的请求对象
+     * @return 删除操作的结果
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/internal/carts/delete")
     Result<Boolean> deleteCart(@RequestBody DeleteCartRequest request);
 
     /**
-     * Inner class to match the request structure
+     * 删除购物车商品的请求参数封装类
      */
     class DeleteCartRequest {
+        /**
+         * 要删除的商品ID列表
+         */
         private List<Long> commodityIds;
 
         public List<Long> getCommodityIds() {

@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Cart Facade REST API (replaces Dubbo CartFacadeImpl)
+ * 购物车服务REST API接口
+ * 替代原有的Dubbo CartFacadeImpl实现
  * @author dhx
  */
 @RestController
@@ -22,12 +23,13 @@ public class CartFacadeController {
     private CartMapper cartMapper;
 
     /**
-     * 从购物车中删除用户的对应商品 (Dubbo deleteCart equivalent)
-     * @param commodityIds 商品id集合
-     * @return Result<Boolean>
+     * 从购物车中删除用户的对应商品
+     * 替代原有的Dubbo deleteCart方法
+     * @param request 删除购物车商品的请求对象
+     * @return 删除操作结果
      */
     @DeleteMapping("/delete")
-    public Result<Boolean> deleteCart(@RequestBody DeleteCartRequest request) {
+    public Result<Boolean> deleteCart(@RequestBody com.chenzhihao.api.client.CartClient.DeleteCartRequest request) {
         Long user = UserContext.getUserId();
         // 构建删除条件
         QueryWrapper<Cart> wrapper = new QueryWrapper<>();
@@ -37,15 +39,4 @@ public class CartFacadeController {
         return Result.success(deleted > 0);
     }
 
-    public static class DeleteCartRequest {
-        private List<Long> commodityIds;
-
-        public List<Long> getCommodityIds() {
-            return commodityIds;
-        }
-
-        public void setCommodityIds(List<Long> commodityIds) {
-            this.commodityIds = commodityIds;
-        }
-    }
 }

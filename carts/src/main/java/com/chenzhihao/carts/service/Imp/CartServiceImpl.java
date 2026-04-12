@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chenzhihao.api.dto.CommodityDTO;
-import com.chenzhihao.api.facade.CommodityFacade;
+import com.chenzhihao.api.client.CommodityClient;
 import com.chenzhihao.carts.domain.dto.CartDTO;
 import com.chenzhihao.carts.domain.po.Cart;
 import com.chenzhihao.carts.domain.vo.CartVO;
@@ -12,7 +12,7 @@ import com.chenzhihao.carts.mapper.CartMapper;
 import com.chenzhihao.carts.service.ICartService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chenzhihao.shopcommon.util.UserContext;
-import org.apache.dubbo.config.annotation.DubboReference;
+import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * <p>
- * 购物车 服务实现类
- * </p>
+ * 购物车服务实现类
  *
  * @author hqh
  * @since 2025-07-03
@@ -31,10 +29,9 @@ import java.util.stream.Collectors;
 @Service
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements ICartService {
 
-    @DubboReference
-    private CommodityFacade commodityFacade;
-
     private final CartMapper cartMapper;
+    @Autowired
+    private CommodityClient commodityClient;
 
     @Autowired
     public CartServiceImpl(CartMapper cartMapper) {
@@ -84,7 +81,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         // 1.获取商品id
         Set<Long> commodityIds = vos.stream().map(CartVO::getCommodityId).collect(Collectors.toSet());
         // 2.查询商品
-        List<CommodityDTO> commodities = commodityFacade.queryCommodityByIds(commodityIds);
+        CommodityClient.CommodityIdsRequest request = new CommodityClient.CommodityIdsRequest();
+        request.setCommodityIds(commodityIds);
+        Result<List<CommodityDTO>> result = commodityClient.queryCommodityByIds(request);
+        List<CommodityDTO> commodities = result.getData();
         if (CollUtil.isEmpty(commodities)) {
             return;
         }

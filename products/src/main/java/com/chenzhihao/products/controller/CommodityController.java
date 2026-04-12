@@ -5,12 +5,12 @@ import com.chenzhihao.products.domain.dto.ComPayDto;
 import com.chenzhihao.products.domain.po.Commodity;
 import com.chenzhihao.products.domain.vo.ComPayVo;
 import com.chenzhihao.products.domain.vo.CommodityRedisVo;
+import com.chenzhihao.products.domain.vo.CommoditySearchVo;
 import com.chenzhihao.products.service.ICommodityService;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.chenzhihao.products.domain.doc.CommodityEsDoc;
 import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
 
@@ -47,7 +47,7 @@ public class CommodityController {
      * @return 统一的分页查询结果
      */
     @GetMapping("/search")
-    public PageResult<CommodityEsDoc> search(CommodityQueryDTO queryDTO) {
+    public PageResult<CommoditySearchVo> search(CommodityQueryDTO queryDTO) {
         return commodityService.search(queryDTO);
     }
 
