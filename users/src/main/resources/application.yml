@@ -7,14 +7,16 @@ spring:
 
   # nacos服务注册与配置中心
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:users-service
   cloud:
     nacos:
-      server-addr: ${NACOS_ADDRESS}
+      server-addr: 122.51.149.223:8848
       discovery:
         namespace: ${NACOS_NAMESPACE}
       config:
          file-extension: yaml
+      username: nacos
+      password: nacos
     # OpenFeign configuration
     openfeign:
       client:

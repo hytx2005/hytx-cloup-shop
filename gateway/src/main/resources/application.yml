@@ -5,17 +5,20 @@ spring:
     name: gateway-service
   profiles:
     active: dev
-#nacos服务注册与配置中心
+  #nacos服务注册与配置中心
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:gateway-service
   cloud:
     nacos:
-      server-addr: ${NACOS_ADDRESS}
+      server-addr: 122.51.149.223:8848
       discovery:
-        namespace: ${NACOS_NAMESPACE}
+        namespace: cloudshop
       config:
         file-extension: yaml
-# gateway相关配置
+        namespace: cloudshop
+      username: nacos
+      password: nacos
+    # gateway相关配置
     gateway:
       routes:  # 路由配置
         - id: users-service # 路由规则id,可自定义，但必须唯一

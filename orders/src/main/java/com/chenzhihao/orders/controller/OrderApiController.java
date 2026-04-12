@@ -1,6 +1,5 @@
 package com.chenzhihao.orders.controller;
 
-import com.chenzhihao.api.dto.OrderForPay;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
 import com.chenzhihao.shopcommon.exception.BaseException;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Order API for inter-service communication (replaces Dubbo OrderFacade)
@@ -33,53 +31,29 @@ public class OrderApiController {
      * @return Result indicating success or failure
      */
     @PostMapping("/create")
-    public Result<Void> createOrder(@RequestBody CreateOrderRequest request) {
+    public Result<Boolean> createOrder(@RequestBody com.chenzhihao.api.client.OrderClient.CreateOrderRequest request) {
         Long userId = UserContext.getUserId();
         if (userId == null) {
             throw new BaseException("获取用户数据失败");
         }
 
         // Generate order data
-        for (OrderForPay vo : request.getPays()) {
-            BigDecimal money = vo.getPrice().multiply(new BigDecimal(vo.getNum()));
+        for (com.chenzhihao.api.client.OrderClient.OrderItem item : request.getOrderItems()) {
+            BigDecimal money = item.getPrice().multiply(new BigDecimal(item.getNum()));
             Orders orders = Orders.builder()
                     .userId(userId)
                     .orderNo(request.getOrderNo())
-                    .commodityId(vo.getId())
-                    .commodityName(vo.getName())
-                    .commodityNum(vo.getNum())
-                    .commodityUrl(vo.getImageUrl())
+                    .commodityId(item.getId())
+                    .commodityName(item.getName())
+                    .commodityNum(item.getNum())
+                    .commodityUrl(item.getImageUrl())
                     .money(money)
                     .payStatus("未支付")
                     .build();
             ordersMapper.insert(orders);
         }
 
-        return Result.success();
+        return Result.success(true);
     }
 
-    /**
-     * Request DTO for creating orders
-     */
-    public static class CreateOrderRequest {
-        private List<OrderForPay> pays;
-        private String orderNo;
-
-        // Getters and setters
-        public List<OrderForPay> getPays() {
-            return pays;
-        }
-
-        public void setPays(List<OrderForPay> pays) {
-            this.pays = pays;
-        }
-
-        public String getOrderNo() {
-            return orderNo;
-        }
-
-        public void setOrderNo(String orderNo) {
-            this.orderNo = orderNo;
-        }
     }
-}

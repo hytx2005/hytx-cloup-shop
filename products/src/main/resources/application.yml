@@ -5,14 +5,16 @@ spring:
   application:
     name: products-service
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:products-service
   cloud:
     nacos:
-      server-addr: ${NACOS_ADDRESS}
+      server-addr: 122.51.149.223:8848
       discovery:
-        namespace: ${NACOS_NAMESPACE}
+        namespace: cloudshop
       config:
         file-extension: yaml
+      username: nacos
+      password: nacos
 
     openfeign:
       client:
@@ -22,18 +24,16 @@ spring:
             read-timeout: 5000
   # 数据库连接池配置
   datasource:
-    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://122.51.149.223:3306/cloudshop?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-
-
+    username: root
+    password: 123456
 
   redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    database: ${REDIS_DATABASE}
-    password: ${REDIS_PASSWORD}
+    host: 122.51.149.223
+    port: 6379
+    database: 0
+    password: PaiSmart2025
 
 
 
@@ -48,10 +48,21 @@ mybatis-plus:
       id-type: auto
 
 
-
 logging:
   level:
     root: INFO
     com.example.products: DEBUG
     org.apache.dubbo: WARN
     com.alibaba.nacos: WARN
+xxl:
+  job:
+    admin:
+      addresses: http://127.0.0.1:9090/xxl-job-admin
+    executor:
+      address: ''           # 执行器地址，为空则自动获取
+      ip: ''                # 执行器IP，为空则自动获取
+      appname: products-service
+      port: 9091
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 2
+    accessToken: ''

@@ -35,15 +35,7 @@ public interface IPaymentService {
      */
     PaymentResultVo queryPaymentStatus(String orderNo);
 
-    /**
-     * 取消支付（超时处理）
-     *
-     * @param orderNo 订单号
-     * @return 是否成功
-     */
-    boolean cancelPayment(String orderNo);
-
-    /**
+/**
      * 验证支付回调签名
      *
      * @param callbackDto 回调信息

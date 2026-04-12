@@ -11,7 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @MapperScan("com.chenzhihao.orders.mapper")
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.chenzhihao.orders.client")
+@EnableFeignClients(basePackages = "com.chenzhihao.api.client")
 @ComponentScan(basePackages = {
         "com.chenzhihao.orders",
         "com.chenzhihao.shopcommon"

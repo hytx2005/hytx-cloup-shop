@@ -11,7 +11,8 @@ import com.chenzhihao.orders.mapper.OrdersMapper;
 import com.chenzhihao.orders.service.IPaymentService;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.OrderNoUtil;
-import com.chenzhihao.orders.util.DelayedQueueUtil;
+import com.chenzhihao.orders.service.IOrderTimeoutService;
+import com.chenzhihao.orders.util.PaymentQueueManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,10 @@ public class PaymentServiceImpl implements IPaymentService {
     private CommodityClient commodityClient;
 
     @Autowired
-    private DelayedQueueUtil delayedQueueUtil;
+    private IOrderTimeoutService orderTimeoutService;
+
+    @Autowired
+    private PaymentQueueManager paymentQueueManager;
 
     private static final String SIGN_KEY = "payment_secret_key_2024";
 
@@ -78,6 +82,9 @@ public class PaymentServiceImpl implements IPaymentService {
             result.setPayUrl("/api/orders/payment/page?orderNo=" + paymentRequestDto.getOrderNo() +
                     "&amount=" + paymentRequestDto.getAmount() +
                     "&method=" + paymentRequestDto.getPayMethod());
+
+            // 将订单添加到延迟队列
+            paymentQueueManager.addOrderToTimeoutQueue(paymentRequestDto.getOrderNo());
         }
 
         return result;
@@ -116,7 +123,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
             if (updated) {
                 // 支付成功，从延迟队列中移除订单
-                delayedQueueUtil.removeOrderFromTimeoutQueue(callbackDto.getOrderNo());
+                paymentQueueManager.removeOrderFromTimeoutQueue(callbackDto.getOrderNo());
             }
         } else if ("FAILED".equals(callbackDto.getPayStatus())) {
             updateWrapper.set("pay_status", "FAILED");
@@ -124,7 +131,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
             if (updated) {
                 // 支付失败，释放库存
-                releaseInventory(callbackDto.getOrderNo());
+                // This is now handled by the order timeout service when needed
             }
         }
 
@@ -169,66 +176,13 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     @Override
-    @Transactional
-    public boolean cancelPayment(String orderNo) {
-        QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("order_no", orderNo);
-        List<Orders> orders = ordersMapper.selectList(queryWrapper);
-
-        if (orders.isEmpty()) {
-            return false;
-        }
-
-        Orders order = orders.get(0);
-
-        // 只有待支付状态的订单才能取消
-        if (!"PENDING".equals(order.getPayStatus())) {
-            return false;
-        }
-
-        // 更新订单状态为已取消
-        UpdateWrapper<Orders> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("order_no", orderNo)
-                .set("pay_status", "CANCELLED")
-                .set("update_time", new Date());
-
-        boolean updated = ordersMapper.update(null, updateWrapper) > 0;
-
-        if (updated) {
-            // 释放库存
-            releaseInventory(orderNo);
-        }
-
-        return updated;
-    }
-
-    @Override
     public boolean validateCallbackSignature(PaymentCallbackDto callbackDto) {
         // 简单的签名验证逻辑
         String expectedSign = generateSignature(callbackDto);
         return expectedSign.equals(callbackDto.getSign());
     }
 
-    /**
-     * 释放库存
-     * @param orderNo 订单号
-     */
-    private void releaseInventory(String orderNo) {
-        // 查询订单中的商品信息
-        QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("order_no", orderNo);
-        List<Orders> orders = ordersMapper.selectList(queryWrapper);
-
-        // 为每个商品释放库存
-        for (Orders order : orders) {
-            CommodityClient.ReleaseStockRequest request = new CommodityClient.ReleaseStockRequest();
-            request.setCommodityId(order.getCommodityId());
-            request.setQuantity(order.getCommodityNum());
-            commodityClient.releaseStock(request);
-        }
-    }
-
-    /**
+/**
      * 生成签名
      * @param callbackDto 支付回调数据
      * @return 生成的签名

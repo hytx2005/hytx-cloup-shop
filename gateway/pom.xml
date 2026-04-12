@@ -60,5 +60,10 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.chenzhihao.shopapi</groupId>
+            <artifactId>shop-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

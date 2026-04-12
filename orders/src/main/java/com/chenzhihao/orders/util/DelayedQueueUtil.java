@@ -2,7 +2,7 @@ package com.chenzhihao.orders.util;
 
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.mapper.OrdersMapper;
-import com.chenzhihao.orders.service.IPaymentService;
+import com.chenzhihao.orders.service.IOrderTimeoutService;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
 import org.redisson.api.RedissonClient;
@@ -29,7 +29,7 @@ public class DelayedQueueUtil {
     private OrdersMapper ordersMapper;
 
     @Autowired
-    private IPaymentService paymentService;
+    private IOrderTimeoutService orderTimeoutService;
 
     private RBlockingQueue<String> orderTimeoutQueue;
     private RDelayedQueue<String> delayedQueue;
@@ -120,7 +120,7 @@ public class DelayedQueueUtil {
 
             if (order != null && "PENDING".equals(order.getPayStatus())) {
                 // 订单仍然处于待支付状态，执行取消操作
-                paymentService.cancelPayment(orderNo);
+                orderTimeoutService.cancelPayment(orderNo);
                 System.out.println("订单超时取消: " + orderNo);
             }
         } catch (Exception e) {

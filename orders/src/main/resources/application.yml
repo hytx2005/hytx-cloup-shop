@@ -2,17 +2,21 @@ server:
   port: 8081
 
 spring:
+  profiles:
+    default: dev
   application:
     name: orders-service
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:order-service
   cloud:
     nacos:
       discovery:
         namespace: ${NACOS_NAMESPACE}
-      server-addr: ${NACOS_ADDRESS}
+      server-addr: 122.51.149.223:8848
       config:
           file-extension: yaml
+      username: nacos
+      password: nacos
     openfeign:
       client:
         config:
@@ -25,6 +29,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:}
+    database: ${REDIS_DATABASE}
+    password: ${REDIS_PASSWORD}
 
 
 

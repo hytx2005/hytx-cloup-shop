@@ -2,17 +2,21 @@ server:
   port: 8084
 
 spring:
+  profiles:
+    default: dev
   application:
     name: carts-service
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:carts-service
   cloud:
     nacos:
-      server-addr: ${NACOS_ADDRESS}
+      server-addr: 122.51.149.223:8848
       discovery:
         namespace: ${NACOS_NAMESPACE}
       config:
         file-extension: yaml
+      username: nacos
+      password: nacos
     openfeign:
       client:
         config:
