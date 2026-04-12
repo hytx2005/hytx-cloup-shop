@@ -8,36 +8,31 @@ spring:
     import: nacos:${spring.application.name}
   cloud:
     nacos:
-      server-addr: ${nacos.address}
+      server-addr: ${NACOS_ADDRESS}
       discovery:
-        namespace: ${cloud.nacos.namespace}
+        namespace: ${NACOS_NAMESPACE}
       config:
         file-extension: yaml
-  # 数据库连接池配置
-  datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
-  profiles:
-    active: dev
-
-
-  redis:
-    host: ${REDIS_HOST:117.72.124.24}
-    port: ${REDIS_PORT:6379}
-    database: ${REDIS_DATABASE:0}
-
-# OpenFeign configuration
-spring:
-  cloud:
     openfeign:
       client:
         config:
           default:
             connect-timeout: 5000
             read-timeout: 5000
+  # 数据库连接池配置
+  datasource:
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
+
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:}
+    database: ${REDIS_DATABASE}
+    password: ${REDIS_PASSWORD}
 
 
 mybatis-plus:

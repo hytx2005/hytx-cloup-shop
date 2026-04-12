@@ -9,35 +9,24 @@ spring:
   cloud:
     nacos:
       discovery:
-        namespace: ${cloud.nacos.namespace}
-      server-addr: ${nacos.address}
+        namespace: ${NACOS_NAMESPACE}
+      server-addr: ${NACOS_ADDRESS}
       config:
           file-extension: yaml
-  # 数据库连接池配置
-  datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
-  profiles:
-    active: dev
-
-
-# OpenFeign configuration
-spring:
-  cloud:
     openfeign:
       client:
         config:
           default:
             connect-timeout: 5000
             read-timeout: 5000
-          carts-service:
-            connect-timeout: 3000
-            read-timeout: 3000
-          products-service:
-            connect-timeout: 3000
-            read-timeout: 3000
+  # 数据库连接池配置
+  datasource:
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+
 
 
 

@@ -10,32 +10,28 @@ spring:
     import: nacos:${spring.application.name}
   cloud:
     nacos:
-      server-addr: ${nacos.address}
+      server-addr: ${NACOS_ADDRESS}
       discovery:
-        namespace: ${cloud.nacos.namespace}
+        namespace: ${NACOS_NAMESPACE}
       config:
          file-extension: yaml
-  profiles:
-    active: dev # 激活开发环境配置
-
-  # 数据库连接池配置
-  datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
-
-
-
-# OpenFeign configuration
-spring:
-  cloud:
+    # OpenFeign configuration
     openfeign:
       client:
         config:
           default:
             connect-timeout: 5000
             read-timeout: 5000
+
+  # 数据库连接池配置
+  datasource:
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+
+
 
 
 mybatis-plus:
@@ -58,7 +54,7 @@ logging:
 #jwt相关配置
 jwt:
     # 设置jwt签名加密时使用的秘钥
-    secret-key: ${JWT_SECRET_KEY:cloud_shopdh21hadxy812yhdahd1r31}
+    secret-key: ${JWT_SECRET_KEY}
     # 设置jwt过期时间
     user-ttl: 604800000
     # 设置前端传递过来的令牌名称
