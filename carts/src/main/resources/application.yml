@@ -41,7 +41,7 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.cehnzhihao.carts.domain.po
+  type-aliases-package: com.chenzhihao.carts.domain.po
   configuration:
     map-underscore-to-camel-case: true
   global-config:

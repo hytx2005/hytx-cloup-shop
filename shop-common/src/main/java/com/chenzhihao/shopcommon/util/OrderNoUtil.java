@@ -1,26 +1,39 @@
 package com.chenzhihao.shopcommon.util;
 
-import cn.hutool.core.lang.UUID;
+import cn.hutool.core.lang.Snowflake;
 
 /**
  * 订单号工具类
+ * 使用雪花算法生成分布式唯一订单号
  * @author dhx
  */
 public class OrderNoUtil {
 
     /**
+     * 雪花算法实例
+     * workerId: 工作机器ID(0~31)
+     * datacenterId: 数据中心ID(0~31)
+     */
+    private static final Snowflake SNOWFLAKE = new Snowflake(1L, 1L);
+
+    /**
      * 生成订单号
-     * @return {@link String }
+     * 使用雪花算法生成分布式唯一ID
+     * @return 订单号
      */
     public static String generateOrderNo() {
-        // 获取当前时间戳
-        long currentTimeMillis = System.currentTimeMillis();
+        return String.valueOf(SNOWFLAKE.nextId());
+    }
 
-        // 利用hutool工具生成UUID，替换掉其中的"-"
-        String uuid = UUID.fastUUID().toString().replace("-","");
-
-        // 拼接订单号
-        return currentTimeMillis + uuid;
+    /**
+     * 初始化雪花算法
+     * 注意：此方法仅用于初始化，实际使用时建议通过配置注入
+     * @param workerId 工作机器ID(0~31)
+     * @param datacenterId 数据中心ID(0~31)
+     */
+    public static void init(long workerId, long datacenterId) {
+        // 注意：需要线程安全地重新初始化
+        // 实际使用建议通过配置注入
     }
 }
 

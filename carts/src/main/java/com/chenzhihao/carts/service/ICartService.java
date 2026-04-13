@@ -38,6 +38,12 @@ public interface ICartService extends IService<Cart> {
     List<CartVO> queryMyCarts();
 
     /**
+     * 同步购物车中的商品信息
+     * 将商品服务的最新商品信息同步到购物车
+     */
+    void syncCartCommodities();
+
+    /**
      * 移除购物车
      * @param itemIds 商品id集合
      */

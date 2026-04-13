@@ -51,5 +51,12 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+
+        <!-- TransmittableThreadLocal for thread pool support -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>2.14.3</version>
+        </dependency>
     </dependencies>
 </project>

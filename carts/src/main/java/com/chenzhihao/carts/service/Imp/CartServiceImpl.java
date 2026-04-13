@@ -69,12 +69,28 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
         // 3.处理VO中的商品信息
         handleCartCommodities(vos);
-        for (CartVO vo : vos) {
-            cartMapper.updateCartByCommodity(vo);
-        }
 
         // 4.返回
         return vos;
+    }
+
+    /**
+     * 同步购物车中的商品信息
+     * 将商品服务的最新商品信息同步到购物车
+     */
+    @Override
+    public void syncCartCommodities() {
+        Long userId = UserContext.getUserId();
+        List<Cart> carts = cartMapper.selectList(new QueryWrapper<Cart>()
+                .eq("user_id", userId));
+        if (CollUtil.isEmpty(carts)) {
+            return;
+        }
+        List<CartVO> vos = BeanUtil.copyToList(carts, CartVO.class);
+        handleCartCommodities(vos);
+        for (CartVO vo : vos) {
+            cartMapper.updateCartByCommodity(vo);
+        }
     }
 
     private void handleCartCommodities(List<CartVO> vos) {

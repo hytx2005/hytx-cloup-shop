@@ -1,14 +1,12 @@
 package com.chenzhihao.orders.controller;
 
-import com.chenzhihao.orders.domain.po.Orders;
-import com.chenzhihao.orders.mapper.OrdersMapper;
+import com.chenzhihao.api.client.OrderClient.CreateOrderRequest;
+import com.chenzhihao.orders.service.IInternalOrderService;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.util.UserContext;
 import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 
 /**
  * Order API for inter-service communication (replaces Dubbo OrderFacade)
@@ -18,12 +16,8 @@ import java.math.BigDecimal;
 @RequestMapping("/api/internal/orders")
 public class OrderApiController {
 
-    private OrdersMapper ordersMapper;
-
     @Autowired
-    public void setOrdersMapper(OrdersMapper ordersMapper) {
-        this.ordersMapper = ordersMapper;
-    }
+    private IInternalOrderService internalOrderService;
 
     /**
      * Create order based on product information and order number
@@ -31,29 +25,14 @@ public class OrderApiController {
      * @return Result indicating success or failure
      */
     @PostMapping("/create")
-    public Result<Boolean> createOrder(@RequestBody com.chenzhihao.api.client.OrderClient.CreateOrderRequest request) {
+    public Result<Boolean> createOrder(@RequestBody CreateOrderRequest request) {
         Long userId = UserContext.getUserId();
         if (userId == null) {
             throw new BaseException("获取用户数据失败");
         }
 
-        // Generate order data
-        for (com.chenzhihao.api.client.OrderClient.OrderItem item : request.getOrderItems()) {
-            BigDecimal money = item.getPrice().multiply(new BigDecimal(item.getNum()));
-            Orders orders = Orders.builder()
-                    .userId(userId)
-                    .orderNo(request.getOrderNo())
-                    .commodityId(item.getId())
-                    .commodityName(item.getName())
-                    .commodityNum(item.getNum())
-                    .commodityUrl(item.getImageUrl())
-                    .money(money)
-                    .payStatus("未支付")
-                    .build();
-            ordersMapper.insert(orders);
-        }
-
+        internalOrderService.createOrder(userId, request);
         return Result.success(true);
     }
 
-    }
+}

@@ -1,11 +1,14 @@
 package com.chenzhihao.shopcommon.util;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+
 /**
  * 用来保存用户信息的ThreadLocal类
+ * 使用TransmittableThreadLocal支持线程池环境
  * @author 线程类
  */
 public class UserContext {
-    private static final ThreadLocal<Long> USER_ID = new ThreadLocal<>();
+    private static final TransmittableThreadLocal<Long> USER_ID = new TransmittableThreadLocal<>();
     public static void setUserId(Long userId) {
         USER_ID.set(userId);
     }
