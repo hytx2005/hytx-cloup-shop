@@ -6,7 +6,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 下单返回实体类
+ * 商品支付结果VO
+ * 用于返回商品支付后的结果数据
+ *
  * @author dhx
  */
 @Data

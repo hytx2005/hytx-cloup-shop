@@ -4,7 +4,9 @@ import cn.hutool.core.lang.Snowflake;
 
 /**
  * 订单号工具类
+ *
  * 使用雪花算法生成分布式唯一订单号
+ *
  * @author dhx
  */
 public class OrderNoUtil {
@@ -18,7 +20,9 @@ public class OrderNoUtil {
 
     /**
      * 生成订单号
+     *
      * 使用雪花算法生成分布式唯一ID
+     *
      * @return 订单号
      */
     public static String generateOrderNo() {
@@ -27,7 +31,9 @@ public class OrderNoUtil {
 
     /**
      * 初始化雪花算法
+     *
      * 注意：此方法仅用于初始化，实际使用时建议通过配置注入
+     *
      * @param workerId 工作机器ID(0~31)
      * @param datacenterId 数据中心ID(0~31)
      */

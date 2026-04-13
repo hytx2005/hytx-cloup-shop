@@ -11,7 +11,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Filter to extract user context from HTTP headers (for internal API calls)
+ * 用户上下文过滤器
+ *
+ * 用于从HTTP请求头提取用户ID并设置到UserContext中
+ * 主要处理微服务间Feign调用时的用户上下文传递
+ *
+ * 工作机制：
+ * - 从X-User-Id请求头读取userId
+ * - -存入TransmittableThreadLocal
+ * - 请求处理完成后清理上下文，防止内存泄漏
+ *
  * @author dhx
  */
 @Component
@@ -23,14 +32,14 @@ public class UserContextFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
 
-        // Extract user ID from header for internal service calls
+        // 从请求头中提取用户ID（用于内部服务调用）
         String userIdHeader = request.getHeader(USER_ID_HEADER);
         if (userIdHeader != null && !userIdHeader.isEmpty()) {
             try {
                 Long userId = Long.parseLong(userIdHeader);
                 UserContext.setUserId(userId);
             } catch (NumberFormatException e) {
-                // Log warning but continue processing
+                // 记录警告但继续处理请求
                 System.out.println("Invalid user ID in header: " + userIdHeader);
             }
         }
@@ -38,7 +47,7 @@ public class UserContextFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } finally {
-            // Clear user context after request processing
+            // 请求处理完成后清理用户上下文
             UserContext.removeUserId();
         }
     }

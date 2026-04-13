@@ -6,7 +6,11 @@ import feign.RequestTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Feign interceptor for propagating user context (replaces DubboUserContextFilter)
+ * Feign请求拦截器
+ *
+ * 在发起Feign调用时将当前用户ID传递给目标服务
+ * 替代Dubbo的隐式传参机制
+ *
  * @author dhx
  */
 @Component
@@ -16,7 +20,7 @@ public class FeignUserContextInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
-        // Get user ID from context and add to request header
+        // 从上下文获取用户ID并添加到请求头
         Long userId = UserContext.getUserId();
         if (userId != null) {
             template.header(USER_ID_HEADER, String.valueOf(userId));

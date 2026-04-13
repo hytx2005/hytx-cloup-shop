@@ -10,15 +10,19 @@ import java.util.List;
 
 /**
  * 订单服务OpenFeign客户端接口
- * 用于其他服务调用订单服务的功能
+ * 用于其他服务通过OpenFeign调用订单服务的功能
+ *
+ * @author hqh
  */
 @FeignClient(name = "orders-service")
 public interface OrderClient {
 
     /**
      * 创建订单
-     * @param request 包含订单详情的请求对象
-     * @return 创建订单操作的结果
+     * 根据订单详情创建订单记录，用于支付流程中的订单创建
+     *
+     * @param request 包含订单号和商品项列表的请求对象
+     * @return 创建订单操作结果
      */
     @RequestMapping(method = RequestMethod.POST, value = "/api/internal/orders/create")
     Result<Boolean> createOrder(@RequestBody CreateOrderRequest request);
@@ -29,11 +33,13 @@ public interface OrderClient {
     class CreateOrderRequest {
         /**
          * 订单商品项列表
+         * 订单中包含的所有商品项
          */
         private List<OrderItem> orderItems;
 
         /**
          * 订单号
+         * 订单的唯一标识
          */
         private String orderNo;
 
@@ -56,10 +62,12 @@ public interface OrderClient {
 
     /**
      * 订单商品项结构
+     * 描述订单中单个商品的详细信息
      */
     class OrderItem {
         /**
          * 商品ID
+         * 商品的唯一标识
          */
         private Long id;
 
@@ -75,11 +83,13 @@ public interface OrderClient {
 
         /**
          * 商品数量
+         * 购买的商品数量
          */
         private Integer num;
 
         /**
          * 商品价格
+         * 单位为元
          */
         private java.math.BigDecimal price;
 

@@ -21,7 +21,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 购物车服务实现类
+ * 购物车模块Service实现类
+ * 实现购物车相关的业务逻辑，包括添加、查询、同步和删除功能
  *
  * @author hqh
  * @since 2025-07-03
@@ -76,7 +77,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     /**
      * 同步购物车中的商品信息
-     * 将商品服务的最新商品信息同步到购物车
+     * 将商品服务的最新商品信息同步到购物车，保持数据一致性
      */
     @Override
     public void syncCartCommodities() {

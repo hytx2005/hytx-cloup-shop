@@ -7,7 +7,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * 全局异常捕获处理器
+ * 全局异常处理器
+ *
+ * 统一处理应用中的业务异常
+ *
+ * 功能：
+ * - 捕获BaseException业务异常
+ * - 记录异常日志
+ * - 返回统一的错误响应格式
+ *
  * @author dhx
  */
 @RestControllerAdvice

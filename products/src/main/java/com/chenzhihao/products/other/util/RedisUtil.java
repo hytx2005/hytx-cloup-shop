@@ -18,7 +18,24 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * redis工具类
+ * Redis工具类
+ *
+ * 提供商品库存管理的Redis操作
+ *
+ * 数据结构：
+ * - Hash：存储商品信息（payCommodity）
+ *   - Key: 商品ID
+ *   - Value: 商品Redis视图对象（含库存、已售、锁定库存、版本号）
+ * - 分布式锁：防止并发修改导致库存超卖
+ *
+ * 库存管理机制：
+ * - stock: 总库存（不变）
+ * - sold: 已售数量（累计）
+ * - payNum: 锁定库存（支付中）
+ * - version: 版本号（用于标识数据是否变更）
+ *
+ * 可用库存 = stock - sold - payNum
+ *
  * @author dhx
  */
 @Component
@@ -32,13 +49,18 @@ public class RedisUtil {
     @Autowired
     CommodityMapper commodityMapper;
 
+    /**
+     * 商品Hash键名
+     */
     public static final String COMMODITY_HASH_KEY = "payCommodity";
 
 
 
     /**
-     * 将商品信息存入redis中
+     * 将商品信息存入Redis中
+     *
      * 这里使用的是hash结构，key为commodity，value为一个map，map的key为商品id，value为商品信息
+     *
      * @param commodity 商品信息
      */
     public void saveCommodity(Commodity commodity){
@@ -52,9 +74,10 @@ public class RedisUtil {
 
 
     /**
-     * 从redis中获取商品信息
-     * @param id 商品id
-     * @return {@link Commodity }
+     * 从Redis中获取商品信息
+     *
+     * @param id 商品ID
+     * @return 商品Redis视图对象
      */
     public CommodityRedisVo getCommodity(Long id){
         RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
@@ -63,7 +86,8 @@ public class RedisUtil {
 
     /**
      * 删除商品信息
-     * @param id 商品id
+     *
+     * @param id 商品ID
      */
     public void deleteCommodity(Long id) {
         RMap<Long, CommodityRedisVo> map = redisson.getMap(COMMODITY_HASH_KEY);
@@ -75,10 +99,13 @@ public class RedisUtil {
     public static final String LOCK_KEY = "lock_commodity:";
 
     /**
-     * 检查库存并更新 payNum 和 version 字段
-     * @param id 商品 ID
-     * @param addPayNum 需要增加到 payNum 的值
-     * @return 库存充足并更新成功返回 true，否则返回 false
+     * 检查库存并更新payNum和version字段
+     *
+     * 使用分布式锁保证原子性，防止库存超卖
+     *
+     * @param id 商品ID
+     * @param addPayNum 需要增加到payNum的值
+     * @return 库存充足并更新成功返回true，否则返回false
      */
     private boolean checkStockAndUpdate(Long id, Integer addPayNum) {
         String lockKey = LOCK_KEY + id;
@@ -117,8 +144,10 @@ public class RedisUtil {
 
     /**
      * 库存回滚
-     * 这里使用的是hash结构，key为commodity，value为一个map，map的key为商品id，value为商品信息
-     * @param maps 商品id和购买的数量 的集合
+     *
+     * 减少对应商品的payNum和version
+     *
+     * @param maps 商品ID和需回滚数量的映射
      */
     private void rollbackStockAndVersion(Map<Long, Integer> maps) {
         for (Long id : maps.keySet()) {
@@ -145,8 +174,22 @@ public class RedisUtil {
 
     /**
      * 批量检查库存并更新
-     * @param details 商品信息
-     * @return boolean
+     *
+     * 原子性地检查多个商品的库存并锁定
+     *
+     * 实现机制：
+     * 1. 对商品ID排序，避免死锁
+     * 2. 依次获取分布式锁
+     * 3. 检查库存是否充足
+     * 4. 增加payNum锁定库存
+     * 5. 任一商品库存不足则回滚所有已锁定的库存
+     *
+     * 防死锁策略：
+     * - 所有请求按相同顺序获取锁
+     * - 使用tryLock避免长时间阻塞
+     *
+     * @param details 商品购买明细列表
+     * @return 所有商品库存充足返回true，否则返回false
      */
     public boolean batchCheckCom(List<PayDetail> details){
         // 对details进行排序
@@ -173,8 +216,9 @@ public class RedisUtil {
 
 
     /**
-     * 获取redis中存储的所有商品信息
-     * @return {@link Map }<{@link Long },{@link CommodityRedisVo }>
+     * 获取Redis中存储的所有商品信息
+     *
+     * @return 商品ID到商品Redis视图对象的映射
      */
     public Map<Long,CommodityRedisVo> getCommodityMap(){
         return redisson.getMap(COMMODITY_HASH_KEY);
@@ -182,8 +226,16 @@ public class RedisUtil {
 
 
     /**
-     * 更新redis商品信息到mysql中
-     * @param vo 商品信息
+     * 更新Redis商品信息到MySQL
+     *
+     * 将Redis中的商品变更同步到数据库
+     *
+     * 同步策略：
+     * 1. 只同步version!=0的商品（有变更的）
+     * 2. 更新完成后将version重置为0
+     * 3. 使用分布式锁保证并发安全
+     *
+     * @param vo 商品Redis视图对象
      */
     public void updateCommodityToMysql(CommodityRedisVo vo){
         String lockKey = LOCK_KEY + vo.getId();
@@ -217,7 +269,10 @@ public class RedisUtil {
 
     /**
      * 订单未支付，回滚商品的锁定库存
-     * @param comId 商品id
+     *
+     * 减少商品的payNum，释放已锁定的库存
+     *
+     * @param comId 商品ID
      * @param dec 需要回滚的数量
      */
     public void updateComPayNum(Long comId,Integer dec){

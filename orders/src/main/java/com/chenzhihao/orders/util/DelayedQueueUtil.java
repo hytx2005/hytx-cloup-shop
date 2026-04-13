@@ -17,6 +17,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * 延迟队列工具类 - 用于处理订单超时
  *
+ * 使用Redisson的延迟队列处理订单超时
+ *
+ * 工作原理：
+ * - 创建订单时加入延迟队列（15分钟后到期）
+ * - 消费者线程阻塞获取到期订单
+ * - 支付成功从队列移除订单
+ * - 订单到期触发超时取消处理
+ *
  * @author Claude
  */
 @Component
@@ -38,11 +46,11 @@ public class DelayedQueueUtil {
 
     @PostConstruct
     public void init() {
-        // 创建阻塞队列和延迟队列
+        // 1. 创建阻塞队列和延迟队列
         orderTimeoutQueue = redissonClient.getBlockingQueue("order:timeout:queue");
         delayedQueue = redissonClient.getDelayedQueue(orderTimeoutQueue);
 
-        // 启动消费者线程
+        // 2. 启动消费者线程
         startConsumer();
     }
 
@@ -78,6 +86,12 @@ public class DelayedQueueUtil {
 
     /**
      * 启动消费者线程处理超时订单
+     *
+     * 创建守护线程持续监听延迟队列
+     *
+     * 线程特性：
+     * - 守护线程：JVM退出时自动终止
+     * - 异常处理：单条订单处理失败不影响其他订单
      */
     private void startConsumer() {
         Thread consumerThread = new Thread(() -> {
@@ -107,11 +121,19 @@ public class DelayedQueueUtil {
     /**
      * 处理超时订单
      *
+     * 订单超时后的处理逻辑
+     *
+     * 处理步骤：
+     * 1. 查询订单当前状态
+     * 2. 如果仍为待支付状态，取消订单
+     * 3. 释放商品库存
+     * 4. 通知用户
+     *
      * @param orderNo 订单号
      */
     private void processTimeoutOrder(String orderNo) {
         try {
-            // 查询订单当前状态
+            // 1. 查询订单当前状态
             com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Orders> queryWrapper =
                     new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
             queryWrapper.eq("order_no", orderNo);
@@ -119,7 +141,7 @@ public class DelayedQueueUtil {
             Orders order = ordersMapper.selectOne(queryWrapper);
 
             if (order != null && "PENDING".equals(order.getPayStatus())) {
-                // 订单仍然处于待支付状态，执行取消操作
+                // 2. 订单仍然处于待支付状态，执行取消操作
                 orderTimeoutService.cancelPayment(orderNo);
                 System.out.println("订单超时取消: " + orderNo);
             }
@@ -131,6 +153,8 @@ public class DelayedQueueUtil {
 
     /**
      * 定期检查延迟队列状态（用于监控）
+     *
+     * 每分钟输出一次延迟队列中待处理的订单数量
      */
     @Scheduled(fixedRate = 60000) // 每分钟检查一次
     public void monitorDelayedQueue() {

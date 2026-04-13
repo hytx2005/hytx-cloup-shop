@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * 订单超时处理服务实现类
+ * 实现订单超时自动取消和支付取消功能，包括库存释放
  *
  * @author Claude
  */
@@ -82,7 +83,9 @@ public class OrderTimeoutServiceImpl implements IOrderTimeoutService {
     }
 
     /**
-     * 释放库存
+     * 释放订单商品库存
+     * 调用商品服务释放被占用的库存
+     *
      * @param orderNo 订单号
      */
     private void releaseInventory(String orderNo) {

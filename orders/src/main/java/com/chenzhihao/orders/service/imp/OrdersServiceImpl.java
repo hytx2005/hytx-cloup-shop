@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 订单模块服务实现类
+ * 订单模块Service实现类
+ * 实现订单相关的业务逻辑，包括订单删除功能
  *
  * @author hqh
  * @since 2025-06-27
@@ -42,8 +43,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     /**
      * 根据订单ID集合删除订单
-     * @param dto 订单信息集合
-     * @return 删除操作是否成功
+     * 删除条件：订单ID在指定集合中且订单属于当前登录用户
+     *
+     * @param dto 订单删除DTO，包含要删除的订单ID列表
+     * @return 删除是否成功
      */
     @Override
     public boolean deleteOrders(OrderDelDto dto) {

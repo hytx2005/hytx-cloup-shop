@@ -15,7 +15,9 @@ import com.chenzhihao.products.domain.dto.CommodityQueryDTO;
 import com.chenzhihao.products.domain.vo.PageResult;
 
 /**
- * 商品模块 前端控制器
+ * 商品模块Controller
+ * 提供商品相关的REST API接口，包括商品查询、搜索和订单创建功能
+ *
  * @author hqh
  * @since 2025-06-27
  */
@@ -30,9 +32,11 @@ public class CommodityController {
     }
 
     /**
-     * 根据id查找商品信息
-     * @param id 商品id
-     * @return {@link Result }<{@link Commodity }>
+     * 根据ID查询商品信息
+     * 从缓存中获取商品信息，缓存未命中则从数据库查询并同步到缓存
+     *
+     * @param id 商品ID
+     * @return 商品信息VO
      */
     @GetMapping("/get/{id}")
     public Result<CommodityRedisVo> getCommodityById(@PathVariable Long id) {
@@ -43,8 +47,10 @@ public class CommodityController {
 
     /**
      * 商品搜索接口
-     * @param queryDTO SpringBoot会自动将URL中的查询参数封装到DTO对象中
-     * @return 统一的分页查询结果
+     * 根据关键词、价格范围等条件搜索商品，支持排序和分页
+     *
+     * @param queryDTO 搜索查询DTO，包含关键词、价格范围、排序和分页参数
+     * @return 分页查询结果
      */
     @GetMapping("/search")
     public PageResult<CommoditySearchVo> search(CommodityQueryDTO queryDTO) {
@@ -53,8 +59,10 @@ public class CommodityController {
 
 
     /**
-     * 测试经过网关之后是否获取到userId
-     * @return {@link Result }<{@link Long 用户userId}>
+     * 测试用户ID获取
+     * 用于验证经过网关后能否正确获取到当前登录用户的ID
+     *
+     * @return 当前登录用户的ID
      */
     @GetMapping("/testId")
     public Result<Long> testId() {
@@ -64,9 +72,11 @@ public class CommodityController {
 
 
     /**
-     * 根据商品信息生成订单
-     * @param comPayDto 商品信息
-     * @return {@link Result }<{@link ComPayVo }>
+     * 根据商品信息创建支付订单
+     * 验证库存、生成订单号、创建订单记录并清空购物车
+     *
+     * @param comPayDto 商品支付信息DTO
+     * @return 订单创建结果，包含订单号
      */
     @PostMapping("/pay")
     public Result<ComPayVo> crePay(@RequestBody ComPayDto comPayDto){

@@ -10,7 +10,10 @@ import cn.hutool.jwt.signers.JWTSignerUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 /**
- * jwt工具类
+ * JWT工具类
+ *
+ * 提供JWT token的生成和解析功能
+ *
  * @author dhx
  */
 public class JwtUtils {

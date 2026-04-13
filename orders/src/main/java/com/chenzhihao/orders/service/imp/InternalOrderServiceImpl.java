@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 
 /**
  * 内部订单服务实现类
+ * 实现服务间调用的订单创建功能，为每个订单项创建订单记录
  *
  * @author dhx
  */

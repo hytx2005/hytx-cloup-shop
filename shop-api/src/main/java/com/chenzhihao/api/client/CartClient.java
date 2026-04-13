@@ -10,15 +10,19 @@ import java.util.List;
 
 /**
  * 购物车服务OpenFeign客户端接口
- * 用于其他服务调用购物车服务的功能
+ * 用于其他服务通过OpenFeign调用购物车服务的功能
+ *
+ * @author hqh
  */
 @FeignClient(name = "carts-service")
 public interface CartClient {
 
     /**
      * 从购物车中删除商品
-     * @param request 包含要删除的商品ID列表的请求对象
-     * @return 删除操作的结果
+     * 根据商品ID列表批量删除购物车中的商品
+     *
+     * @param request 删除购物车商品的请求对象，包含商品ID列表
+     * @return 删除操作结果
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/internal/carts/delete")
     Result<Boolean> deleteCart(@RequestBody DeleteCartRequest request);

@@ -11,6 +11,15 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 支付控制器
  *
+ * 提供支付相关的API接口
+ *
+ * 核心接口：
+ * - /create：创建支付请求
+ * - /callback：处理支付回调
+ * - /status：查询支付状态
+ * - /simulate：模拟支付（测试用）
+ * - /page：支付页面
+ *
  * @author Claude
  */
 @RestController
@@ -23,8 +32,10 @@ public class PaymentController {
     /**
      * 创建支付请求
      *
-     * @param paymentRequestDto 支付请求信息
-     * @return 支付结果
+     * 根据订单信息创建支付交易，返回支付URL或支付结果
+     *
+     * @param paymentRequestDto 支付请求信息（订单号、金额、支付方式）
+     * @return 支付结果（交易号、支付URL、支付状态等）
      */
     @PostMapping("/create")
     public Result<PaymentResultVo> createPayment(@RequestBody PaymentRequestDto paymentRequestDto) {
@@ -35,8 +46,10 @@ public class PaymentController {
     /**
      * 查询支付状态
      *
+     * 根据订单号查询当前的支付状态
+     *
      * @param orderNo 订单号
-     * @return 支付结果
+     * @return 支付结果（支付状态、支付时间、交易号等）
      */
     @GetMapping("/status/{orderNo}")
     public Result<PaymentResultVo> queryPaymentStatus(@PathVariable String orderNo) {
@@ -47,7 +60,9 @@ public class PaymentController {
     /**
      * 支付回调接口（用于第三方支付平台回调）
      *
-     * @param callbackDto 支付回调信息
+     * 接收第三方支付平台的异步回调通知，更新订单状态
+     *
+     * @param callbackDto 支付回调信息（订单号、金额、支付状态、签名等）
      * @return 处理结果
      */
     @PostMapping("/callback")
@@ -62,6 +77,8 @@ public class PaymentController {
 
     /**
      * 模拟支付接口（用于本地测试）
+     *
+     * 创建模拟的支付回调，直接将订单标记为支付成功
      *
      * @param orderNo 订单号
      * @return 支付结果
@@ -96,7 +113,11 @@ public class PaymentController {
     /**
      * 支付页面（模拟支付界面）
      *
+     * 返回一个HTML页面，展示订单信息并提供支付按钮
+     *
      * @param orderNo 订单号
+     * @param amount 支付金额
+     * @param method 支付方式
      * @return 支付页面HTML
      */
     @GetMapping("/page")

@@ -25,6 +25,8 @@ import java.util.UUID;
 /**
  * 支付服务实现类
  *
+ * 处理支付相关的业务逻辑，包括创建支付、处理回调、查询状态等
+ *
  * @author Claude
  */
 @Service
@@ -42,11 +44,14 @@ public class PaymentServiceImpl implements IPaymentService {
     @Autowired
     private PaymentQueueManager paymentQueueManager;
 
+    /**
+     * 签名密钥，实际项目中应该配置在配置文件中
+     */
     private static final String SIGN_KEY = "payment_secret_key_2024";
 
     @Override
     public PaymentResultVo createPayment(PaymentRequestDto paymentRequestDto) {
-        // 查询订单信息
+        // 1. 查询订单信息
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_no", paymentRequestDto.getOrderNo());
         List<Orders> orders = ordersMapper.selectList(queryWrapper);
@@ -57,33 +62,33 @@ public class PaymentServiceImpl implements IPaymentService {
 
         Orders order = orders.get(0);
 
-        // 检查订单状态
+        // 2. 检查订单状态
         if (!"PENDING".equals(order.getPayStatus())) {
             throw new BaseException("订单状态不正确，无法支付");
         }
 
-        // 生成支付交易号
+        // 3. 生成支付交易号
         String tradeNo = "PAY" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8);
 
-        // 创建支付结果
+        // 4. 创建支付结果
         PaymentResultVo result = new PaymentResultVo();
         result.setOrderNo(paymentRequestDto.getOrderNo());
         result.setAmount(paymentRequestDto.getAmount());
         result.setTradeNo(tradeNo);
 
         if ("SIMULATE".equals(paymentRequestDto.getPayMethod())) {
-            // 模拟支付直接成功
+            // 5.1 模拟支付直接成功
             result.setStatus("SUCCESS");
             result.setPayTime(System.currentTimeMillis());
             result.setPayUrl("/api/orders/payment/simulate?orderNo=" + paymentRequestDto.getOrderNo());
         } else {
-            // 其他支付方式跳转到支付页面
+            // 5.2 其他支付方式跳转到支付页面
             result.setStatus("PENDING");
             result.setPayUrl("/api/orders/payment/page?orderNo=" + paymentRequestDto.getOrderNo() +
                     "&amount=" + paymentRequestDto.getAmount() +
                     "&method=" + paymentRequestDto.getPayMethod());
 
-            // 将订单添加到延迟队列
+            // 6. 将订单添加到延迟队列（15分钟后超时）
             paymentQueueManager.addOrderToTimeoutQueue(paymentRequestDto.getOrderNo());
         }
 
@@ -93,12 +98,12 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     @Transactional
     public boolean handlePaymentCallback(PaymentCallbackDto callbackDto) {
-        // 验证签名
+        // 1. 验证签名
         if (!validateCallbackSignature(callbackDto)) {
             throw new BaseException("回调签名验证失败");
         }
 
-        // 查询订单
+        // 2. 查询订单
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_no", callbackDto.getOrderNo());
         List<Orders> orders = ordersMapper.selectList(queryWrapper);
@@ -109,12 +114,13 @@ public class PaymentServiceImpl implements IPaymentService {
 
         Orders order = orders.get(0);
 
-        // 更新订单状态
+        // 3. 更新订单状态
         UpdateWrapper<Orders> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("order_no", callbackDto.getOrderNo());
 
         boolean updated = false;
         if ("SUCCESS".equals(callbackDto.getPayStatus())) {
+            // 3.1 支付成功，更新订单状态为已支付
             updateWrapper.set("pay_status", "PAID")
                     .set("pay_time", new Date())
                     .set("trade_no", callbackDto.getTradeNo());
@@ -122,15 +128,16 @@ public class PaymentServiceImpl implements IPaymentService {
             updated = ordersMapper.update(null, updateWrapper) > 0;
 
             if (updated) {
-                // 支付成功，从延迟队列中移除订单
+                // 3.2 支付成功，从延迟队列中移除订单
                 paymentQueueManager.removeOrderFromTimeoutQueue(callbackDto.getOrderNo());
             }
         } else if ("FAILED".equals(callbackDto.getPayStatus())) {
+            // 3.3 支付失败，更新订单状态为失败
             updateWrapper.set("pay_status", "FAILED");
             updated = ordersMapper.update(null, updateWrapper) > 0;
 
             if (updated) {
-                // 支付失败，释放库存
+                // 3.4 支付失败，释放库存（由订单超时服务处理）
                 // This is now handled by the order timeout service when needed
             }
         }
@@ -140,6 +147,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public PaymentResultVo queryPaymentStatus(String orderNo) {
+        // 1. 查询订单
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_no", orderNo);
         List<Orders> orders = ordersMapper.selectList(queryWrapper);
@@ -154,6 +162,7 @@ public class PaymentServiceImpl implements IPaymentService {
         result.setAmount(order.getMoney());
         result.setTradeNo(order.getTradeNo());
 
+        // 2. 映射订单状态到支付状态
         switch (order.getPayStatus()) {
             case "PAID":
                 result.setStatus("SUCCESS");
@@ -182,8 +191,12 @@ public class PaymentServiceImpl implements IPaymentService {
         return expectedSign.equals(callbackDto.getSign());
     }
 
-/**
+    /**
      * 生成签名
+     *
+     * 根据订单号、金额、支付状态和密钥生成签名
+     * 实际项目中应该使用更复杂的加密算法（如MD5、SHA256等）
+     *
      * @param callbackDto 支付回调数据
      * @return 生成的签名
      */

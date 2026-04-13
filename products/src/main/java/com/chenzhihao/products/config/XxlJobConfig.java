@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * xxl-job config
+ * XXL-Job配置类
+ *
+ * 配置XXL-Job执行器的参数
  *
  * @author xuxueli 2017-04-28
  */

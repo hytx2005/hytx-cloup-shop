@@ -35,7 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 商品模块服务实现类
+ * 商品模块Service实现类
+ * 实现商品相关的业务逻辑，包括缓存管理、搜索、订单创建等功能
+ *
  * @author hqh
  * @since 2025-06-27
  */
@@ -55,7 +57,8 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
 
     /**
      * 旁路缓存策略 - 根据商品ID获取商品信息
-     * 未获取到商品信息时，直接同步保存到Redis中
+     * 先从缓存查询，缓存未命中则从数据库查询并同步到缓存
+     *
      * @param id 商品ID
      * @return 商品信息VO
      */
@@ -128,8 +131,10 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
 
     /**
      * 创建支付订单
-     * @param comPayDto 商品支付信息
-     * @return 支付订单结果
+     * 验证库存、生成订单号、调用订单服务创建订单、清空购物车
+     *
+     * @param comPayDto 商品支付信息DTO
+     * @return 支付订单结果，包含订单号
      */
     @Override
     public Result<ComPayVo> crePay(ComPayDto comPayDto) {
@@ -170,9 +175,11 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
 
 
     /**
-     * 获取对应商品信息，保证商品信息存储在Redis中
-     * @param details 商品支付详情
-     * @return OrderForPay列表
+     * 获取商品信息并确保存储在Redis中
+     * 用于订单创建时获取商品详情，将商品信息转换为订单信息格式
+     *
+     * @param details 商品支付详情列表
+     * @return 商品订单信息列表
      */
     @Override
     public List<OrderForPay> getComForRedis(List<PayDetail> details) {
@@ -192,9 +199,10 @@ public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity
     }
 
     /**
-     * 转换OrderForPay列表为OrderClient.OrderItem列表
-     * @param forRedis OrderForPay列表
-     * @return OrderClient.OrderItem列表
+     * 转换商品订单信息列表为订单服务需要的格式
+     *
+     * @param forRedis 商品订单信息列表
+     * @return 订单服务需要的订单项列表
      */
     private java.util.List<OrderClient.OrderItem> convertToOrderItems(java.util.List<OrderForPay> forRedis) {
         List<OrderClient.OrderItem> orderItems = new ArrayList<>();

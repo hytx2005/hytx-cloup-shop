@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 购物车 前端控制器
+ * 购物车模块Controller
+ * 提供购物车相关的REST API接口，包括添加、查询和删除功能
  *
  * @author hqh
  * @since 2025-07-03
@@ -23,9 +24,11 @@ public class CartController {
     private ICartService cartService;
 
     /**
-     * 添加到购物车
-     * @param cartDTO 购物车实体类
-     * @return {@link Result }<{@link ? }>
+     * 添加商品到购物车
+     * 如果商品已存在，则增加数量；否则新增购物车记录
+     *
+     * @param cartDTO 购物车DTO，包含商品ID和数量
+     * @return 添加操作结果
      */
     @PostMapping
     public Result<?> addCart(@RequestBody CartDTO cartDTO) {
@@ -34,8 +37,10 @@ public class CartController {
     }
 
     /**
-     * 查询我的购物车
-     * @return {@link Result }<{@link List }<{@link CartVO }>>
+     * 查询当前用户的购物车
+     * 返回用户购物车中所有商品的详细信息
+     *
+     * @return 购物车商品列表
      */
     @GetMapping
     public Result<List<CartVO>> queryMyCarts() {
@@ -43,9 +48,11 @@ public class CartController {
     }
 
     /**
-     * 移除购物车
-     * @param commodityIds 商品id集合
-     * @return {@link Result }<{@link ? }>
+     * 从购物车移除商品
+     * 根据商品ID列表批量移除购物车中的商品
+     *
+     * @param commodityIds 要移除的商品ID列表
+     * @return 移除操作结果
      */
     @DeleteMapping
     public Result<?> removeByCommodityIds(@RequestBody List<Long> commodityIds) {

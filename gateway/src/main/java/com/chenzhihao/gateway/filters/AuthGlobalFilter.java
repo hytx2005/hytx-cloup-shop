@@ -22,7 +22,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 登录拦截器
+ * 全局认证过滤器
+ *
+ * 拦截所有请求，验证JWT token的有效性
+ *
+ * 拦截流程：
+ * 1. 检查请求路径是否在白名单中，白名单直接放行
+ * 2. 从请求头获取token
+ * 3. 解析token验证签名和过期时间
+ * 4. 提取userId并放入请求头传递给下游服务
+ * 5. 验证失败返回401未授权
+ *
  * @author ASUS
  */
 @Component
@@ -43,7 +53,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
         log.info("request:{}{}", request.getMethod(), request.getURI());
 
-        // 2.判断是否需要登录拦截
+        // 2.判断是否需要登录拦截（白名单检查）
         if (isExclude(request.getPath().toString())){
             log.info("不需要登录拦截");
             return chain.filter(exchange);
@@ -67,16 +77,23 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return response.setComplete();
         }
 
+        // 4.将userId放入请求头传递给下游服务
         String userIdInfo = userId.toString();
         ServerWebExchange webExchange = exchange.mutate()
                 .request(builder -> builder.header(jwtProperties.getClaimName(), userIdInfo))
                 .build();
 
-        // 放行
+        // 5.放行
         log.info("已经放行");
         return chain.filter(webExchange);
     }
 
+    /**
+     * 检查请求路径是否在白名单中
+     *
+     * @param path 请求路径
+     * @return true表示在白名单中不需要认证，false表示需要认证
+     */
     private boolean isExclude(String path){
         for (String excludePath : authProperties.getExcludePaths()) {
             if (antPathMatcher.match(excludePath,path)){
@@ -85,6 +102,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         }
         return false;
     }
+
     @Override
     public int getOrder() {
         return 0;

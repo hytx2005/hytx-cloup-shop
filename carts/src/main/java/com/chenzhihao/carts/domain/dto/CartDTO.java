@@ -9,32 +9,49 @@ import java.math.BigDecimal;
 
 import lombok.Data;
 
+/**
+ * 购物车DTO
+ * 用于添加商品到购物车的请求参数封装
+ *
+ * @author hqh
+ * @since 2025-07-03
+ */
+@Data
+public class CartDTO {
 
     /**
-     * <p>
-     * 购物车
-     * </p>
-     *
-     * @author hqh
-     * @since 2025-07-03
+     * 商品ID
+     * 要添加到购物车的商品ID
      */
-    @Data
+    private Long commodityId;
 
-    public class CartDTO {
+    /**
+     * 商品名称
+     */
+    private String commodityName;
 
-        private Long commodityId;
+    /**
+     * 商品价格
+     * 单位为元
+     */
+    private BigDecimal commodityPrice;
 
-        private String commodityName;
+    /**
+     * 商品图片URL
+     */
+    private String commodityUrl;
 
-        private BigDecimal commodityPrice;
+    /**
+     * 商品数量
+     * 要添加的商品数量
+     */
+    private Integer commodityNum;
 
-        private String commodityUrl;
+    /**
+     * 商品规格
+     */
+    private String spec;
 
-        private Integer commodityNum;
-
-        private String spec;
-
-
-    }
+}
 
 

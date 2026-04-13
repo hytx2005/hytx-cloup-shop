@@ -12,13 +12,17 @@ import java.util.Set;
 
 /**
  * 商品服务OpenFeign客户端接口
- * 用于其他服务调用商品服务的功能
+ * 用于其他服务通过OpenFeign调用商品服务的功能
+ *
+ * @author hqh
  */
 @FeignClient(name = "products-service")
 public interface CommodityClient {
 
     /**
      * 根据商品ID集合查询商品信息
+     * 批量查询商品详情，用于购物车同步等功能
+     *
      * @param request 包含商品ID集合的请求对象
      * @return 商品信息列表
      */
@@ -27,8 +31,10 @@ public interface CommodityClient {
 
     /**
      * 释放商品库存
-     * @param request 包含商品ID和数量的请求对象
-     * @return 释放库存操作的结果
+     * 用于订单取消或支付失败时释放被占用的库存
+     *
+     * @param request 包含商品ID和释放数量的请求对象
+     * @return 释放库存操作结果
      */
     @RequestMapping(method = RequestMethod.POST, value = "/api/internal/commodities/release-stock")
     Result<Boolean> releaseStock(@RequestBody ReleaseStockRequest request);
@@ -39,6 +45,7 @@ public interface CommodityClient {
     class CommodityIdsRequest {
         /**
          * 商品ID集合
+         * 要查询的商品ID列表
          */
         private Set<Long> commodityIds;
 
@@ -57,11 +64,13 @@ public interface CommodityClient {
     class ReleaseStockRequest {
         /**
          * 商品ID
+         * 要释放库存的商品ID
          */
         private Long commodityId;
 
         /**
          * 释放数量
+         * 要释放的库存数量
          */
         private Integer quantity;
 

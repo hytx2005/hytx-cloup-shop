@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 订单信息 - 根据提供的商品信息生成预支付订单
+ * 订单支付商品信息DTO
+ * 根据提供的商品信息生成预支付订单
+ *
  * @author dhx
  */
 @Data
@@ -17,6 +19,10 @@ public class OrderForPay implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 商品ID
+     * 商品的唯一标识
+     */
     private Long id;
 
     /**
@@ -26,6 +32,7 @@ public class OrderForPay implements Serializable {
 
     /**
      * 商品价格
+     * 单位为元
      */
     private BigDecimal price;
 
@@ -36,6 +43,7 @@ public class OrderForPay implements Serializable {
 
     /**
      * 商品数量
+     * 购买的商品数量
      */
     private Integer num;
 }

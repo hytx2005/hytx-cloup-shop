@@ -16,7 +16,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 订单超时处理工具类
+ *
  * 替代Kafka的内存存储方案，配合XXL-Job处理订单超时
+ *
+ * 工作机制：
+ * - 订单创建时，将订单商品信息存入内存Map
+ * - XXL-Job定时任务扫描内存，检查订单是否超时
+ * - 超时订单回滚库存并清理内存
+ *
+ * @author ASUS
  */
 @Component
 @Slf4j
@@ -56,9 +64,12 @@ public class OrderTimeoutUtil {
 
     /**
      * 添加订单商品信息到内存
+     *
+     * 在订单创建时调用，记录订单的商品信息，用于超时回滚
+     *
      * @param orderNo 订单号
      * @param commodityId 商品ID
-     * @param num 商品数量
+     * @param num 购买数量
      */
     public static void addOrderItem(String orderNo, Long commodityId, Integer num) {
         OrderItem orderItem = OrderItem.builder()
@@ -88,6 +99,14 @@ public class OrderTimeoutUtil {
 
     /**
      * 检查并处理超时订单
+     *
+     * 由XXL-Job定时任务调用，检查订单是否超时
+     *
+     * 处理逻辑：
+     * 1. 检查订单是否超过设定时间未支付
+     * 2. 超时则回滚所有商品的库存
+     * 3. 清理内存中的订单数据
+     *
      * @param orderNo 订单号
      */
     public void updateRedisFromOrder(String orderNo) {

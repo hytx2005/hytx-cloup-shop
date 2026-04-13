@@ -7,7 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 下单请求参数
+ * 商品支付请求DTO
+ * 用于发起商品支付的请求参数封装
+ *
  * @author dhx
  */
 @Data
