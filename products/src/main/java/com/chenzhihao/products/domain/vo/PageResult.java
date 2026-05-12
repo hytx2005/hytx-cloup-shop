@@ -1,7 +1,6 @@
 package com.chenzhihao.products.domain.vo;
 
 import lombok.Data;
-import org.dromara.easyes.core.biz.EsPageInfo;
 
 import java.util.List;
 
@@ -30,18 +29,6 @@ public class PageResult<T> {
     /**
      * 当前页数据列表
      */
-    private List<T> list;
+    private List<T> records;
 
-    /**
-     * 从 Easy-ES 的分页结果直接转换
-     */
-    public static <T> PageResult<T> of(EsPageInfo<T> esPageInfo) {
-        PageResult<T> result = new PageResult<>();
-        result.setPageNum(esPageInfo.getPageNum());
-        result.setPageSize(esPageInfo.getPageSize());
-        result.setTotal(esPageInfo.getTotal());
-        result.setPages(esPageInfo.getPages());
-        result.setList(esPageInfo.getList());
-        return result;
-    }
 }

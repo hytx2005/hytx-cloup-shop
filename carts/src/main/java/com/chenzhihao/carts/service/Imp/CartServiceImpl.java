@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chenzhihao.api.dto.CommodityDTO;
-import com.chenzhihao.api.facade.CommodityFacade;
+import com.chenzhihao.api.client.CommodityClient;
 import com.chenzhihao.carts.domain.dto.CartDTO;
 import com.chenzhihao.carts.domain.po.Cart;
 import com.chenzhihao.carts.domain.vo.CartVO;
@@ -12,7 +12,7 @@ import com.chenzhihao.carts.mapper.CartMapper;
 import com.chenzhihao.carts.service.ICartService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chenzhihao.shopcommon.util.UserContext;
-import org.apache.dubbo.config.annotation.DubboReference;
+import com.chenzhihao.shopcommon.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +21,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * <p>
- * 购物车 服务实现类
- * </p>
+ * 购物车模块Service实现类
+ * 实现购物车相关的业务逻辑，包括添加、查询、同步和删除功能
  *
  * @author hqh
  * @since 2025-07-03
@@ -31,10 +30,9 @@ import java.util.stream.Collectors;
 @Service
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements ICartService {
 
-    @DubboReference
-    private CommodityFacade commodityFacade;
-
     private final CartMapper cartMapper;
+    @Autowired
+    private CommodityClient commodityClient;
 
     @Autowired
     public CartServiceImpl(CartMapper cartMapper) {
@@ -72,19 +70,38 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
         // 3.处理VO中的商品信息
         handleCartCommodities(vos);
-        for (CartVO vo : vos) {
-            cartMapper.updateCartByCommodity(vo);
-        }
 
         // 4.返回
         return vos;
+    }
+
+    /**
+     * 同步购物车中的商品信息
+     * 将商品服务的最新商品信息同步到购物车，保持数据一致性
+     */
+    @Override
+    public void syncCartCommodities() {
+        Long userId = UserContext.getUserId();
+        List<Cart> carts = cartMapper.selectList(new QueryWrapper<Cart>()
+                .eq("user_id", userId));
+        if (CollUtil.isEmpty(carts)) {
+            return;
+        }
+        List<CartVO> vos = BeanUtil.copyToList(carts, CartVO.class);
+        handleCartCommodities(vos);
+        for (CartVO vo : vos) {
+            cartMapper.updateCartByCommodity(vo);
+        }
     }
 
     private void handleCartCommodities(List<CartVO> vos) {
         // 1.获取商品id
         Set<Long> commodityIds = vos.stream().map(CartVO::getCommodityId).collect(Collectors.toSet());
         // 2.查询商品
-        List<CommodityDTO> commodities = commodityFacade.queryCommodityByIds(commodityIds);
+        CommodityClient.CommodityIdsRequest request = new CommodityClient.CommodityIdsRequest();
+        request.setCommodityIds(commodityIds);
+        Result<List<CommodityDTO>> result = commodityClient.queryCommodityByIds(request);
+        List<CommodityDTO> commodities = result.getData();
         if (CollUtil.isEmpty(commodities)) {
             return;
         }

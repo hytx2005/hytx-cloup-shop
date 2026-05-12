@@ -44,9 +44,29 @@ public class Orders implements Serializable {
     private BigDecimal money;
 
     /**
-     * 未知、已支付
+     * 支付状态：PENDING-待支付，PAID-已支付，CANCELLED-已取消，REFUNDED-已退款
      */
     private String payStatus;
+
+    /**
+     * 支付时间
+     */
+    private java.util.Date payTime;
+
+    /**
+     * 支付交易号
+     */
+    private String tradeNo;
+
+    /**
+     * 订单创建时间
+     */
+    private java.util.Date createTime;
+
+    /**
+     * 订单更新时间
+     */
+    private java.util.Date updateTime;
 
 
     /**

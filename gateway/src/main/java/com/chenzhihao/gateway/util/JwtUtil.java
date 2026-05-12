@@ -11,15 +11,25 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * jwt工具类
+ * JWT工具类
+ *
+ * 提供JWT token的生成和解析功能
+ *
+ * 实现细节：
+ * - 使用HS256算法签名
+ * - 支持过期时间设置
+ * - 验证签名、过期时间、数据格式
+ *
  * @author dhx
  */
 public class JwtUtil {
     /**
      * 生成token令牌
+     *
      * @param secretKey 密钥
-     * @param ttlMillis 超时时间
-     * @return {@link String }
+     * @param ttlMillis 超时时间（毫秒）
+     * @param userId 用户ID
+     * @return JWT token字符串
      */
     public static String createToken(String secretKey, long ttlMillis, Long userId) {
         JWTSigner jwtSigner = JWTSignerUtil.hs256(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -32,9 +42,19 @@ public class JwtUtil {
 
     /**
      * 解析token令牌
+     *
+     * 解析流程：
+     * 1. 验证token格式
+     * 2. 校验JWT签名
+     * 3. 校验是否过期
+     * 4. 校验数据格式
+     * 5. 解析用户ID
+     *
      * @param secretKey 密钥
      * @param token token令牌
-     * @return {@link Long }
+     * @param tokenName token中用户ID的字段名
+     * @return 用户ID
+     * @throws JWTException token无效或过期
      */
     public static Long parseToken(String secretKey,String token,String tokenName) {
 

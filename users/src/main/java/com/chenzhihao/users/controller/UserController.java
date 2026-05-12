@@ -19,8 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
+ * 用户模块前端控制器
  *
- * 用户模块 前端控制器
+ * 提供用户相关的API接口
  *
  * @author hqh
  * @since 2025-06-27

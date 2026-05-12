@@ -26,6 +26,18 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
 
+        <!-- OpenFeign依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- shop-common依赖 -->
+        <dependency>
+            <groupId>com.chenzhihao.shopcommon</groupId>
+            <artifactId>shop-common</artifactId>
+        </dependency>
+
     </dependencies>
 
     <properties>

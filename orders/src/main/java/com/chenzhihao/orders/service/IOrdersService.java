@@ -1,35 +1,27 @@
 package com.chenzhihao.orders.service;
 
-import com.chenzhihao.api.dto.OrderCreDto;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
- * <p>
- * 订单模块 服务类
- * </p>
+ * 订单模块Service接口
+ * 提供订单相关的业务逻辑处理，继承MyIService以获得基础CRUD功能
  *
  * @author hqh
  * @since 2025-06-27
  */
 public interface IOrdersService extends IService<Orders> {
 
-    /**
-     * 生成订单号
-     *  1.扣减商品数量
-     *  2.生成订单表数据
-     *  3.去购物车中删除对应数据
-     * @param orderCreDto 订单信息
-     * @return {@link String }
-     */
-    String createOrder(OrderCreDto orderCreDto);
+
 
 
     /**
-     * 根据订单id集合删除id
-     * @param dto 订单信息集合
-     * @return boolean
+     * 根据订单ID集合删除订单
+     * 只能删除当前登录用户的订单
+     *
+     * @param dto 订单删除DTO，包含要删除的订单ID列表
+     * @return 删除是否成功
      */
     boolean deleteOrders(OrderDelDto dto);
 }

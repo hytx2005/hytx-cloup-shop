@@ -2,71 +2,47 @@ server:
   port: 8081
 
 spring:
+  profiles:
+    default: dev
   application:
     name: orders-service
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:order-service
   cloud:
     nacos:
       discovery:
-        namespace: ${cloud.nacos.namespace}
-      server-addr: ${nacos.address}
+        namespace: ${NACOS_NAMESPACE}
+      server-addr: 122.51.149.223:8848
       config:
           file-extension: yaml
+      username: nacos
+      password: nacos
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
   # 数据库连接池配置
   datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
-  profiles:
-    active: dev
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
-  # kafka相关配置
-  kafka:
-    bootstrap-servers: 122.51.149.223:9092
-    producer:
-      retries: 3 #设置大于0，会将发送失败的记录重新发送
-      batch-size: 16384
-      buffer-memory: 33554432
-      acks: 1
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:}
+    database: ${REDIS_DATABASE}
+    password: ${REDIS_PASSWORD}
 
-    consumer:
-      group-id: default-group
-      enable-auto-commit: false
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      max-poll-records: 500
 
-    listener:
-      ack-mode: manual_immediate
-
-# dubbo + nacos 服务注册发现
-nacos:
-    address: 121.43.197.241:8848
-      #  117.72.124.24:8849
-dubbo:
-  provider:
-    filter: -exception
-  protocol:
-    port: -1
-  consumer:
-    check: false
-  registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
-    register-mode: instance
-  application:
-    qos-enable: off
-    name: ${spring.application.name}-dubbo
 
 
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.cehnzhihao.users.domain.po
+  type-aliases-package: com.chenzhihao.orders.domain.po
   configuration:
     map-underscore-to-camel-case: true
   global-config:

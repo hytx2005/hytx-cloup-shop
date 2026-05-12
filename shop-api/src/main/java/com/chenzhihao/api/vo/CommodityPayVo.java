@@ -8,10 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 下单后返回商品信息
+ * 商品支付结果VO
+ * 下单后返回的商品信息
  *
- * @author hqh
- * @since 2025-06-27
+ * @author dhx
  */
 @Data
 @Builder
@@ -19,6 +19,10 @@ public class CommodityPayVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 商品ID
+     * 商品的唯一标识
+     */
     private Long id;
 
     /**
@@ -28,6 +32,7 @@ public class CommodityPayVo implements Serializable {
 
     /**
      * 商品价格
+     * 单位为元
      */
     private BigDecimal price;
 

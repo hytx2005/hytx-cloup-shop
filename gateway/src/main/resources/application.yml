@@ -5,17 +5,20 @@ spring:
     name: gateway-service
   profiles:
     active: dev
-#nacos服务注册与配置中心
+  #nacos服务注册与配置中心
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:gateway-service
   cloud:
     nacos:
-      server-addr: ${nacos.address}
+      server-addr: 122.51.149.223:8848
       discovery:
-        namespace: ${cloud.nacos.namespace}
+        namespace: cloudshop
       config:
         file-extension: yaml
-# gateway相关配置
+        namespace: cloudshop
+      username: nacos
+      password: nacos
+    # gateway相关配置
     gateway:
       routes:  # 路由配置
         - id: users-service # 路由规则id,可自定义，但必须唯一
@@ -42,15 +45,11 @@ spring:
           predicates:
             - Path=/orders/** # 路由的条件，这里是路径匹配，只有路径以/user开头的请求才会被路由到users-service服务
 
-# dubbo + nacos 服务注册发现
-nacos:
-  address: 121.43.197.241:8848
-  #  117.72.124.24:8849
 
 #jwt相关配置
 jwt:
   # 设置jwt签名加密时使用的秘钥
-  secret-key: cloud_shopdh21hadxy812yhdahd1r31
+  secret-key: ${JWT_SECRET_KEY}
   # 设置jwt过期时间
   user-ttl: 604800000
   # 设置前端传递过来的令牌名称

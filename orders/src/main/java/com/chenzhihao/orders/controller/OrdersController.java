@@ -2,11 +2,9 @@ package com.chenzhihao.orders.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chenzhihao.api.dto.OrderCreDto;
 import com.chenzhihao.orders.domain.dto.OrderDelDto;
 import com.chenzhihao.orders.domain.po.Orders;
 import com.chenzhihao.orders.service.IOrdersService;
-import com.chenzhihao.shopcommon.annotation.DubboException;
 import com.chenzhihao.shopcommon.exception.BaseException;
 import com.chenzhihao.shopcommon.result.Result;
 import com.chenzhihao.shopcommon.util.UserContext;
@@ -16,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 订单模块 前端控制器
+ * 订单模块Controller
+ * 提供订单相关的REST API接口，包括订单查询和删除功能
+ *
  * @author hqh
  * @since 2025-06-27
  */
@@ -30,25 +30,14 @@ public class OrdersController {
         this.ordersService = ordersService;
     }
 
-    /**
-     * 生成订单号
-     *    1.扣减商品数量
-     *    2.生成订单表数据
-     *    3.去购物车中删除对应数据
-     * @param orderCreDto 订单信息
-     * @return {@link Result }<{@link String }
-     */
-    @GetMapping("/pay")
-    @DubboException(message = "商品库存不足")
-    public Result<String> createOrder(@RequestBody OrderCreDto orderCreDto) {
-        String order = ordersService.createOrder(orderCreDto);
-        return Result.success(order);
-    }
+
 
 
     /**
-     * 获取用户订单信息
-     * @return {@link Result }<{@link List }<{@link Orders }>>
+     * 获取当前登录用户的订单列表
+     * 根据用户ID查询该用户的所有订单信息
+     *
+     * @return 订单列表，包含当前用户的所有订单
      */
     @GetMapping("/get")
     public Result<List<Orders>> getOrdersByUserId() {
@@ -62,9 +51,11 @@ public class OrdersController {
 
 
     /**
-     * 根据id删除订单信息
-     * @param dto 订单id列表
-     * @return {@link Result }<{@link ? }>
+     * 根据订单ID列表删除订单
+     * 只能删除当前登录用户的订单，每次只能删除一个订单
+     *
+     * @param dto 订单删除DTO，包含要删除的订单ID列表
+     * @return 删除操作结果
      */
     @DeleteMapping("/delete")
     public Result<?> deleteOrder(@RequestBody OrderDelDto dto) {

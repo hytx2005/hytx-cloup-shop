@@ -2,54 +2,46 @@ server:
   port: 8084
 
 spring:
+  profiles:
+    default: dev
   application:
     name: carts-service
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:carts-service
   cloud:
     nacos:
-      server-addr: ${nacos.address}
+      server-addr: 122.51.149.223:8848
       discovery:
-        namespace: ${cloud.nacos.namespace}
+        namespace: ${NACOS_NAMESPACE}
       config:
         file-extension: yaml
+      username: nacos
+      password: nacos
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
   # 数据库连接池配置
   datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
-  profiles:
-    active: dev
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
 
 
   redis:
-    host: 117.72.124.24
-    port: 6379
-    database: 0
-
-# dubbo + nacos 服务注册发现
-nacos:
-  address: 121.43.197.241:8848
-  #  117.72.124.24:8849
-dubbo:
-  protocol:
-    port: -1
-  consumer:
-    timeout: 5000
-    check: false
-  registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.registry.namespace}
-    register-mode: instance
-  application:
-    qos-enable: off
-    name: ${spring.application.name}-dubbo
-
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:}
+    database: ${REDIS_DATABASE}
+    password: ${REDIS_PASSWORD}
 
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.cehnzhihao.carts.domain.po
+  type-aliases-package: com.chenzhihao.carts.domain.po
   configuration:
     map-underscore-to-camel-case: true
   global-config:
@@ -63,5 +55,3 @@ logging:
     com.example.products: DEBUG
     org.apache.dubbo: WARN
     com.alibaba.nacos: WARN
-    org.apache.kafka: WARN
-    org.apache.kafka.clients: WARN

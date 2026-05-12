@@ -7,62 +7,33 @@ spring:
 
   # nacos服务注册与配置中心
   config:
-    import: nacos:${spring.application.name}
+    import: nacos:users-service
   cloud:
     nacos:
-      server-addr: ${nacos.address}
+      server-addr: 122.51.149.223:8848
       discovery:
-        namespace: ${cloud.nacos.namespace}
+        namespace: ${NACOS_NAMESPACE}
       config:
          file-extension: yaml
-  profiles:
-    active: dev # 激活开发环境配置
+      username: nacos
+      password: nacos
+    # OpenFeign configuration
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
 
-  # kafka相关配置
-  kafka:
-    bootstrap-servers: 122.51.149.223:9092
-    producer:
-      retries: 3 #设置大于0，会将发送失败的记录重新发送
-      batch-size: 16384
-      buffer-memory: 33554432
-      acks: 1
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-    consumer:
-      group-id: default-group
-      enable-auto-commit: false
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      max-poll-records: 500
-
-    listener:
-      ack-mode: manual_immediate
   # 数据库连接池配置
   datasource:
-    url: jdbc:mysql://${cs.db.host}:3306/${cs.db.name}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${cs.db.user}
-    password: ${cs.db.pwd}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
 
 
-# dubbo + nacos 服务注册发现
-nacos:
-    address: 121.43.197.241:8848
-    #  117.72.124.24:8849
-dubbo:
-  protocol:
-    port: -1
-  consumer:
-    check: false
-  registry:
-    address: nacos://${nacos.address}?username=nacos&password=nacos&namespace=${dubbo.nacos.namespace}
-    register-mode: instance
-  application:
-    qos-enable: off
-    name: ${spring.application.name}-dubbo
 
 
 mybatis-plus:
@@ -85,7 +56,7 @@ logging:
 #jwt相关配置
 jwt:
     # 设置jwt签名加密时使用的秘钥
-    secret-key: cloud_shopdh21hadxy812yhdahd1r31
+    secret-key: ${JWT_SECRET_KEY}
     # 设置jwt过期时间
     user-ttl: 604800000
     # 设置前端传递过来的令牌名称
